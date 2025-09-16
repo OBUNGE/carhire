@@ -1,0 +1,152 @@
+/*
+ * This is a manifest file that'll be compiled into application.css.
+ *
+ * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
+ * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
+ * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
+ * depending on specificity.
+ *
+ * Consider organizing styles into separate files for maintainability.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind screens;
+@tailwind typography;
+@tailwind forms;
+@tailwind aspect-ratio;
+@tailwind line-clamp;
+@tailwind animations;
+@tailwind transitions;
+@tailwind filters;
+@tailwind gradients;
+@tailwind shadows;
+
+/* Custom styles can be added below */
+/* === Custom Car Show Page Styles === */
+
+/* Top section layout: gallery + details */
+/* Base */
+.site-body {
+  font-family: system-ui, sans-serif;
+  background: #f9fafb;
+  color: #111;
+  margin: 0;
+}
+
+/* Header */
+.site-header {
+  background: #2563eb;
+  color: white;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  flex-wrap: wrap;
+}
+
+.logo-link {
+  font-weight: 700;
+  font-size: 20px;
+  color: white;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.logout-btn {
+  background: white;
+  color: #2563eb;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Flash messages */
+.flash-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flash {
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flash-notice {
+  background: #dbeafe;
+  border: 1px solid #2563eb;
+  color: #1e3a8a;
+}
+
+.flash-alert {
+  background: #e0f2fe;
+  border: 1px solid #2563eb;
+  color: #1e40af;
+}
+
+/* Main content */
+.site-main {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Footer */
+.site-footer {
+  background: #2563eb;
+  color: white;
+  text-align: center;
+  padding: 16px;
+  margin-top: 40px;
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .nav-links {
+    gap: 12px;
+    font-size: 13px;
+  }
+  .site-main {
+    margin: 20px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

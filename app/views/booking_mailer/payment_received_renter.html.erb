@@ -1,0 +1,5 @@
+<h2>Hi <%= @booking.renter.full_name %>,</h2>
+<p>Your payment for Booking #<%= @booking.id %> has been received successfully.</p>
+<p>Car: <%= @booking.car.make %> <%= @booking.car.model %></p>
+<p>Amount Paid: KES <%= number_to_currency(@booking.total_paid, unit: '') %></p>
+<p>Thank you for using Carhire!</p>

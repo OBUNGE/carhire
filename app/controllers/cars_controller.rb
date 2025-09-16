@@ -1,0 +1,144 @@
+class CarsController < ApplicationController
+  # Guests can browse and view published cars
+  skip_before_action :authenticate_user!, only: %i[index show]
+
+  # Must be logged in to create, edit, update, or delete a car
+  before_action :authenticate_user!, only: %i[new create edit update destroy purge_image]
+  before_action :set_car, only: %i[show edit update destroy purge_image]
+  before_action :authorize_car_owner!, only: %i[edit update destroy purge_image]
+
+  def index
+    # Only show published cars to guests
+    @cars = Car.where(status: "published")
+
+    # Search by make or model
+    if params[:query].present?
+      @cars = @cars.where("make ILIKE ? OR model ILIKE ?", "%#{params[:query]}%", "%#{params[:query]}%")
+    end
+
+    # Filter by category
+    if params[:category].present?
+      @cars = @cars.where(category: params[:category])
+    end
+
+    # Filter by price range
+    if params[:price_range].present?
+      case params[:price_range]
+      when "low"
+        @cars = @cars.where("price < ?", 5000)
+      when "mid"
+        @cars = @cars.where("price >= ? AND price <= ?", 5000, 10000)
+      when "high"
+        @cars = @cars.where("price > ?", 10000)
+      when "sold"
+        @cars = @cars.where(status: "sold")
+      end
+    end
+
+    # Randomise order for grid
+    @cars = @cars.order("RANDOM()")
+
+    # Featured cars for carousel
+    @featured_cars = Car.where(status: "published").order("RANDOM()").limit(10)
+  end
+
+ def show
+  if @car.status == "draft" && @car.owner != current_user
+    redirect_to cars_path, alert: "This car is not available for public viewing."
+    return
+  end
+
+  @image_urls = @car.images.map { |img| url_for(img) }
+end
+
+  def new
+    @car = Car.new
+  end
+
+  def edit
+  end
+
+  def create
+    @car = Car.new(car_params)
+    @car.owner = current_user
+
+    # Set status based on button clicked
+    @car.status = params[:draft] ? "draft" : "published"
+
+    if @car.save
+      message = @car.status == "draft" ? "Car saved as draft." : "Car published successfully."
+      redirect_to @car, notice: message
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    @car.status = params[:draft] ? "draft" : "published"
+
+    # Remove selected images
+    if params[:car][:remove_image_ids].present?
+      params[:car][:remove_image_ids].each do |id|
+        @car.images.find(id).purge
+      end
+    end
+
+    # Append new images
+    if params[:car][:images].present?
+      @car.images.attach(params[:car][:images])
+    end
+
+    if @car.update(car_params.except(:images, :remove_image_ids))
+      message = @car.status == "draft" ? "Car updated and saved as draft." : "Car updated and published."
+      redirect_to @car, notice: message
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @car.destroy!
+    redirect_to cars_path, notice: "Car was successfully deleted."
+  end
+
+  def purge_image
+    image = @car.images.find(params[:image_id])
+    image.purge
+    redirect_to edit_car_path(@car), notice: "Image deleted successfully."
+  end
+
+  private
+
+  def set_car
+    @car = Car.with_attached_images.find(params[:id])
+  end
+
+  def authorize_car_owner!
+    unless @car.owner == current_user
+      redirect_to cars_path, alert: "Not authorized to modify this car."
+    end
+  end
+
+  def car_params
+    params.require(:car).permit(
+      :make,
+      :model,
+      :year,
+      :price,
+      :description,
+      :listing_type,
+      :deposit_amount,
+      :pickup_address,
+      :latitude,
+      :longitude,
+      :category,
+      :transmission_type,
+      :fuel_type,
+      :insurance_status,
+      :seats,
+      :status,
+      images: [],
+      remove_image_ids: []
+    )
+  end
+end

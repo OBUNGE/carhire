@@ -1,0 +1,9 @@
+<p>Hello <%= @booking.owner.first_name.presence || @booking.owner.email %>,</p>
+
+<p>You’ve received a <%= @stage_label %> payment for Booking #<%= @booking.id %>.</p>
+
+<p>Car: <%= @booking.car.make %> <%= @booking.car.model %></p>
+<p>Amount: KES <%= number_to_currency(@stage == :deposit ? @booking.deposit_amount : @booking.total_price, unit: "", precision: 2) %></p>
+
+<p>Thank you for using Carhire!</p>
+<p>Log in to your dashboard to view the details.</p>

@@ -1,0 +1,18 @@
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/bindex-0.8.1/ext/skiptrace
+/home/omondi/.local/share/mise/installs/ruby/3.4.5/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/bindex-0.8.1/ext/skiptrace
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-brzc2p sitelibdir\=./.gem.20250824-4182-brzc2p clean
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/bindex-0.8.1/ext/skiptrace
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-brzc2p sitelibdir\=./.gem.20250824-4182-brzc2p
+compiling cruby.c
+linking shared-object skiptrace/internal/cruby.so
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/bindex-0.8.1/ext/skiptrace
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-brzc2p sitelibdir\=./.gem.20250824-4182-brzc2p install
+/usr/bin/install -c -m 0755 cruby.so ./.gem.20250824-4182-brzc2p/skiptrace/internal
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/bindex-0.8.1/ext/skiptrace
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-brzc2p sitelibdir\=./.gem.20250824-4182-brzc2p clean

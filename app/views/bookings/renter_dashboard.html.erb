@@ -1,0 +1,127 @@
+<h1 style="font-size:24px; font-weight:bold; margin-bottom:24px;">Renter Dashboard</h1>
+
+<!-- ⏱ Active Rentals -->
+<section style="margin-bottom:32px;">
+  <h2 style="font-size:20px; font-weight:600; margin-bottom:16px;">⏱ Active Rentals</h2>
+  <% if @active_bookings.any? %>
+    <% @active_bookings.each do |booking| %>
+      <div style="padding:16px; background:#fff; border-radius:8px; border:1px solid #ddd; margin-bottom:12px;">
+        <h3 style="font-weight:500; margin-bottom:4px;">
+          <%= booking.car.make %> <%= booking.car.model %>
+        </h3>
+        <p style="font-size:14px; color:#555; margin-bottom:8px;">
+          Started: <%= l booking.rental_start_time, format: :short %>
+        </p>
+        <div id="booking_actions_<%= booking.id %>">
+          <%= render "bookings/timer_status", booking: booking %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <p style="color:#777;">No active rentals.</p>
+  <% end %>
+</section>
+
+<!-- 📅 Upcoming Bookings -->
+<section style="margin-bottom:32px;">
+  <h2 style="font-size:20px; font-weight:600; margin-bottom:16px;">📅 Upcoming Bookings</h2>
+  <% if @upcoming_bookings.any? %>
+    <% @upcoming_bookings.each do |booking| %>
+      <div style="padding:16px; background:#fff; border-radius:8px; border:1px solid #ddd; margin-bottom:12px;">
+        <h3 style="font-weight:500; margin-bottom:4px;">
+          <%= booking.car.make %> <%= booking.car.model %>
+        </h3>
+        <% if booking.planned_return_at.present? %>
+          <p style="font-size:14px; color:#555;">
+            Planned return: <%= l booking.planned_return_at, format: :short %>
+          </p>
+        <% end %>
+        <div id="booking_actions_<%= booking.id %>">
+          <%= render "bookings/timer_status", booking: booking %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <p style="color:#777;">No upcoming bookings.</p>
+  <% end %>
+</section>
+
+<!-- 💵 Pending Deposits -->
+<section style="margin-bottom:32px;">
+  <h2 style="font-size:20px; font-weight:600; margin-bottom:16px;">💵 Pending Deposits</h2>
+  <% pending_deposit_bookings = @my_bookings.select { |b| b.status == "pending_deposit" } %>
+  <% if pending_deposit_bookings.any? %>
+    <% pending_deposit_bookings.each do |booking| %>
+      <div id="booking_payment_<%= booking.id %>" style="padding:16px; background:#fff; border-radius:8px; border:1px solid #ddd; margin-bottom:12px;">
+        <h3 style="font-weight:500; margin-bottom:4px;">
+          <%= booking.car.make %> <%= booking.car.model %>
+        </h3>
+        <p style="font-size:14px; color:#555; margin-bottom:8px;">
+          Deposit required before car release.
+        </p>
+        <%= render "renters/deposit_payment_form", booking: booking %>
+      </div>
+    <% end %>
+  <% else %>
+    <p style="color:#777;">No pending deposits.</p>
+  <% end %>
+</section>
+
+<!-- 💳 Pending Payments -->
+<section style="margin-bottom:32px;">
+  <h2 style="font-size:20px; font-weight:600; margin-bottom:16px;">💳 Pending Payments</h2>
+  <% pending_payment_bookings = @my_bookings.select { |b| b.status == "awaiting_final_payment" } %>
+  <% if pending_payment_bookings.any? %>
+    <% pending_payment_bookings.each do |booking| %>
+      <div id="booking_payment_<%= booking.id %>">
+        <%= render "renters/final_payment_form", booking: booking %>
+      </div>
+    <% end %>
+  <% else %>
+    <p style="color:#777;">No pending payments.</p>
+  <% end %>
+</section>
+
+<!-- 📜 Past Bookings -->
+<section style="margin-bottom:32px;">
+  <h2 style="font-size:20px; font-weight:600; margin-bottom:16px;">📜 Past Bookings</h2>
+  <% if @past_bookings.any? %>
+    <% @past_bookings.each do |booking| %>
+      <div style="padding:16px; background:#fff; border-radius:8px; border:1px solid #ddd; margin-bottom:12px;">
+        <h3 style="font-weight:500; margin-bottom:4px;">
+          <%= booking.car.make %> <%= booking.car.model %>
+        </h3>
+        <p style="font-size:14px; color:#555;">
+          Ended: <%= l booking.rental_end_time, format: :short %>
+        </p>
+        <div id="booking_actions_<%= booking.id %>">
+          <%= render "bookings/timer_status", booking: booking %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <p style="color:#777;">No past bookings.</p>
+  <% end %>
+</section>
+
+<!-- 💰 Upcoming Purchase Requests -->
+<section style="margin-bottom:32px;">
+  <h2 style="font-size:20px; font-weight:600; margin-bottom:16px;">💰 Upcoming Purchase Requests</h2>
+  <% if @upcoming_purchases.any? %>
+    <%= render partial: "purchase_card", collection: @upcoming_purchases,
+               as: :purchase, locals: { is_renter: true } %>
+  <% else %>
+    <p style="color:#777;">No upcoming purchase requests.</p>
+  <% end %>
+</section>
+
+<!-- 🗂 Past Purchase Requests -->
+<section>
+  <h2 style="font-size:20px; font-weight:600; margin-bottom:16px;">🗂 Past Purchase Requests</h2>
+  <% if @past_purchases.any? %>
+    <%= render partial: "purchase_card", collection: @past_purchases,
+               as: :purchase, locals: { is_renter: true } %>
+  <% else %>
+    <p style="color:#777;">No past purchase requests.</p>
+  <% end %>
+</section>

@@ -1,0 +1,3 @@
+<%= turbo_stream.replace "bookings_table" do %>
+  <%= render partial: "bookings_table", locals: { bookings: @bookings } %>
+<% end %>

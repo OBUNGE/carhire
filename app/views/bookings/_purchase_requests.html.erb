@@ -1,0 +1,27 @@
+<div class="mt-12">
+  <h2 class="text-2xl font-bold mb-4">Purchase Requests for Your Cars</h2>
+  <% if owner_purchases.any? %>
+    <div class="space-y-6">
+      <% owner_purchases.each do |purchase| %>
+        <div class="border p-4 rounded bg-white shadow">
+          <h3 class="text-lg font-semibold mb-2">
+            Purchase request for <%= purchase.car.name %>
+          </h3>
+          <p><strong>Buyer Name:</strong> <%= purchase.user.full_name %></p>
+          <p><strong>Buyer Email:</strong> <%= purchase.user.email %></p>
+          <p><strong>Buyer Contact:</strong> <%= purchase.buyer_contact %></p>
+          <p><strong>Message:</strong> <%= purchase.message %></p>
+          <p><strong>Status:</strong> <%= purchase.status.titleize %></p>
+          <div class="mt-2 space-x-4">
+            <% if purchase.pending? %>
+              <%= button_to "Approve Sale", approve_purchase_path(purchase), method: :patch, local: true, class: "px-3 py-2 bg-green-600 text-white rounded" %>
+              <%= button_to "Reject Sale", reject_purchase_path(purchase), method: :patch, local: true, class: "px-3 py-2 bg-red-600 text-white rounded" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-600">No purchase requests for your cars yet.</p>
+  <% end %>
+</div>

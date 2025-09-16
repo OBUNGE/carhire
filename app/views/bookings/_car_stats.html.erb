@@ -1,0 +1,5 @@
+<div class="mb-8 p-6 bg-white rounded shadow">
+  <h2 class="text-xl font-bold mb-4">Your Car Stats</h2>
+  <p><strong>Total Cars Listed:</strong> <%= total_cars %></p>
+  <p><strong>Average Price:</strong> KES <%= average_price.present? ? number_with_precision(average_price, precision: 2) : "N/A" %></p>
+</div>

@@ -1,0 +1,24 @@
+<%# This partial replaces the renter's payment section live %>
+<div class="p-4 bg-white rounded border space-y-2">
+  <% if booking.pending_deposit? %>
+    <h3 class="font-semibold text-lg">Pending Deposit</h3>
+    <p>Please pay your refundable deposit of 
+       <strong>KES <%= number_with_delimiter(booking.deposit_amount) %></strong> 
+       to proceed with your booking.</p>
+    <%= render "renters/deposit_payment_form", booking: booking %>
+
+  <% elsif booking.ready_for_pickup? %>
+    <h3 class="font-semibold text-lg text-green-600">Deposit Received ✅</h3>
+    <p>Your booking is confirmed. Please coordinate with the owner for pickup.</p>
+
+  <% elsif booking.awaiting_final_payment? %>
+    <h3 class="font-semibold text-lg">Pending Final Payment</h3>
+    <p>Your final invoice is ready. Amount due: 
+       <strong>KES <%= number_with_delimiter(booking.final_amount) %></strong></p>
+    <%= render "renters/final_payment_form", booking: booking %>
+
+  <% elsif booking.completed? %>
+    <h3 class="font-semibold text-lg text-green-600">Payment Complete ✅</h3>
+    <p>Thank you! Your booking is now closed.</p>
+  <% end %>
+</div>

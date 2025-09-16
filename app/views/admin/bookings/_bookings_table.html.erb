@@ -1,0 +1,56 @@
+<table style="width:100%; border-collapse: collapse; font-size: 14px;">
+  <thead style="background-color: #f5f5f5;">
+    <tr>
+      <th style="padding: 8px; text-align: left;">ID</th>
+      <th style="padding: 8px; text-align: left;">Car</th>
+      <th style="padding: 8px; text-align: left;">Owner</th>
+      <th style="padding: 8px; text-align: left;">Renter</th>
+      <th style="padding: 8px; text-align: left;">Status</th>
+      <th style="padding: 8px; text-align: left;">Paid</th>
+      <th style="padding: 8px; text-align: left;">Amount</th>
+      <th style="padding: 8px; text-align: left;">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @bookings.each do |booking| %>
+      <tr style="border-bottom: 1px solid #ccc;">
+        <td style="padding: 8px;"><%= booking.id %></td>
+        <td style="padding: 8px;"><%= booking.car.name %></td>
+        <td style="padding: 8px;"><%= booking.car.owner.full_name %></td>
+        <td style="padding: 8px;"><%= booking.renter.full_name %></td>
+        <td style="padding: 8px;"><%= booking.status.humanize %></td>
+        <td style="padding: 8px;"><%= booking.paid_at ? "✅" : "❌" %></td>
+        <td style="padding: 8px;">KES <%= number_with_delimiter(booking.total_price) %></td>
+        <td style="padding: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+          
+          <% if booking.refundable? %>
+            <%= button_to "Refund",
+      refund_admin_booking_path(booking),
+      method: :post,
+      form: { data: { turbo_stream: true } },
+      data: { confirm: "Refund renter for Booking ##{booking.id}?" },
+      style: "background-color: #f87171; color: white; padding: 4px 8px; border: none; border-radius: 4px;" %>
+          <% else %>
+            <span style="color: #9ca3af; font-size: 12px; align-self: center;">
+              Not refundable
+            </span>
+          <% end %>
+
+          <% if booking.owner_payout.nil? %>
+            <%= button_to "Payout",
+      payout_admin_booking_path(booking),
+      method: :post,
+      form: { data: { turbo_stream: true } },
+      data: { confirm: "Send payout to owner for Booking ##{booking.id}?" },
+      style: "background-color: #34d399; color: white; padding: 4px 8px; border: none; border-radius: 4px;" %>
+          <% else %>
+            <span style="color: #9ca3af; font-size: 12px; align-self: center;">
+              Payout sent
+            </span>
+          <% end %>
+
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

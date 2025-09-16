@@ -1,0 +1,48 @@
+<!-- Payment Phone Number Modal -->
+<div id="paymentModal"
+     class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+     data-controller="payment"
+     data-payment-target="modal">
+
+  <div style="background:#fff; border-radius:8px; padding:24px; width:100%; max-width:400px;">
+    <h2 style="font-size:18px; font-weight:bold; margin-bottom:16px;">Enter Phone Number</h2>
+
+    <form data-payment-target="form">
+      <div style="margin-bottom:12px;">
+        <label for="countryCode" style="display:block; margin-bottom:4px;">Country code</label>
+        <select id="countryCode" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+          <option value="254" selected>🇰🇪 +254 Kenya</option>
+          <option value="255">🇹🇿 +255 Tanzania</option>
+          <option value="256">🇺🇬 +256 Uganda</option>
+          <option value="250">🇷🇼 +250 Rwanda</option>
+          <option value="257">🇧🇮 +257 Burundi</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label for="phoneNumber" style="display:block; margin-bottom:4px;">Phone number</label>
+        <input type="text"
+               id="phoneNumber"
+               name="phone_number"
+               inputmode="numeric"
+               pattern="[0-9]+"
+               placeholder="7XXXXXXXX"
+               style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"
+               required>
+        <small style="color:#555;">Enter the number without leading 0. Example: 712345678</small>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button type="button"
+                style="padding:8px 12px; background:#ccc; border:none; border-radius:4px; cursor:pointer;"
+                data-action="click->payment#closeModal">
+          Cancel
+        </button>
+        <button type="submit"
+                style="padding:8px 12px; background:#2563eb; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+          Proceed to Pay
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

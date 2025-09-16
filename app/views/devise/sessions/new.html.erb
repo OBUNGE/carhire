@@ -1,0 +1,57 @@
+<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:#f3f4f6; padding:20px;">
+  <div style="width:100%; max-width:420px; background:#fff; padding:32px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+    
+    <!-- Heading -->
+    <h1 style="font-size:32px; font-weight:bold; text-align:center; margin-bottom:40px;">Log in to CarHire</h1>
+
+    <!-- Login Form -->
+    <%= form_for(resource,
+             as: resource_name,
+             url: session_path(resource_name),
+             html: { data: { turbo: false }, style: "width:100%;" }) do |f| %>
+
+      <div style="margin-bottom:24px;">
+        <%= f.label :email, style: "display:block; font-size:18px; font-weight:500; color:#374151; margin-bottom:8px;" %>
+        <%= f.email_field :email, autofocus: true, style: "width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:6px; font-size:16px;" %>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <%= f.label :password, style: "display:block; font-size:18px; font-weight:500; color:#374151; margin-bottom:8px;" %>
+        <%= f.password_field :password, autocomplete: "current-password", style: "width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:6px; font-size:16px;" %>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <%= label_tag :role, "Sign in as", style: "display:block; font-size:18px; font-weight:500; color:#374151; margin-bottom:8px;" %>
+        <%= f.select :role, [["Renter", "user"], ["Owner", "owner"]], {}, style: "width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:6px; font-size:16px;" %>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <%= f.submit "Log In", style: "width:100%; background:#000; color:#fff; font-weight:bold; font-size:18px; padding:12px; border:none; border-radius:6px; cursor:pointer;" %>
+      </div>
+    <% end %>
+
+    <!-- OR Divider -->
+    <div style="display:flex; align-items:center; margin:24px 0;">
+      <hr style="flex:1; border:none; border-top:1px solid #ccc;">
+      <span style="margin:0 12px; color:#6b7280; font-size:14px;">or</span>
+      <hr style="flex:1; border:none; border-top:1px solid #ccc;">
+    </div>
+
+    <!-- Google Sign In Button -->
+    <div style="margin-bottom:24px;">
+      <%= link_to user_google_oauth2_omniauth_authorize_path,
+                  method: :get,
+                  style: "display:flex; align-items:center; justify-content:center; gap:10px; width:100%; background:#fff; color:#444; font-weight:500; font-size:18px; padding:12px; border:1px solid #ccc; border-radius:6px; text-decoration:none; cursor:pointer;" do %>
+        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png" alt="Google" style="width:20px; height:20px;">
+        <span>Sign in with Google</span>
+      <% end %>
+    </div>
+
+    <!-- Bottom Links -->
+    <div style="display:flex; justify-content:center; gap:32px; font-size:16px; margin-top:16px;">
+      <%= link_to "Sign up", new_user_registration_path, style: "color:#2563eb; text-decoration:none;" %>
+      <%= link_to "Forgot your password?", new_user_password_path, style: "color:#2563eb; text-decoration:none;" %>
+    </div>
+    
+  </div>
+</div>

@@ -1,0 +1,5 @@
+<h2>Hi <%= @booking.car.owner.full_name %>,</h2>
+<p>You’ve received payment for Booking #<%= @booking.id %>.</p>
+<p>Car: <%= @booking.car.make %> <%= @booking.car.model %></p>
+<p>Amount Received: KES <%= number_to_currency(@booking.owner_payout, unit: '') %></p>
+<p>We’ve initiated your payout via M-Pesa.</p>

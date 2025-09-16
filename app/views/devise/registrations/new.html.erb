@@ -1,0 +1,100 @@
+<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:#f3f4f6; padding:20px;">
+  <div style="width:100%; max-width:420px; background:#fff; padding:32px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+
+    <!-- Heading -->
+    <h1 style="font-size:28px; font-weight:bold; text-align:center; margin-bottom:30px;">
+      Sign up for CarHire
+    </h1>
+
+    <!-- Devise Form -->
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+      <%= devise_error_messages! %>
+
+      <!-- First name -->
+      <div style="margin-bottom:20px;">
+        <%= f.label :first_name, "First name", style: "display:block; font-size:16px; font-weight:600; margin-bottom:6px; color:#374151;" %>
+        <%= f.text_field :first_name, placeholder: "As it appears on your ID", style: "width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-size:16px;" %>
+      </div>
+
+      <!-- Last name -->
+      <div style="margin-bottom:20px;">
+        <%= f.label :last_name, "Last name", style: "display:block; font-size:16px; font-weight:600; margin-bottom:6px; color:#374151;" %>
+        <%= f.text_field :last_name, placeholder: "As it appears on your ID", style: "width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-size:16px;" %>
+      </div>
+
+      <!-- Phone -->
+      <div style="margin-bottom:20px;">
+        <%= f.label :phone_number, "Phone", style: "display:block; font-size:16px; font-weight:600; margin-bottom:6px; color:#374151;" %>
+        <%= f.telephone_field :phone_number, placeholder: "e.g. +254712345678", style: "width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-size:16px;" %>
+      </div>
+
+      <!-- Email -->
+      <div style="margin-bottom:20px;">
+        <%= f.label :email, style: "display:block; font-size:16px; font-weight:600; margin-bottom:6px; color:#374151;" %>
+        <%= f.email_field :email, style: "width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-size:16px;" %>
+      </div>
+
+      <!-- Password -->
+      <div style="margin-bottom:20px;">
+        <%= f.label :password, "Password (6 characters minimum)", style: "display:block; font-size:16px; font-weight:600; margin-bottom:6px; color:#374151;" %>
+        <%= f.password_field :password, autocomplete: "new-password", style: "width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-size:16px;" %>
+      </div>
+
+      <!-- Confirm Password -->
+      <div style="margin-bottom:20px;">
+        <%= f.label :password_confirmation, "Password confirmation", style: "display:block; font-size:16px; font-weight:600; margin-bottom:6px; color:#374151;" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", style: "width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-size:16px;" %>
+      </div>
+
+      <!-- Role Select -->
+      <div style="margin-bottom:20px;">
+        <%= f.label :role, "Register as", style: "display:block; font-size:16px; font-weight:600; margin-bottom:6px; color:#374151;" %>
+        <%= f.select :role,
+                     options_for_select([["Car Owner", "owner"], ["Renter", "user"]]),
+                     { id: "role-select" },
+                     style: "width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-size:16px;" %>
+      </div>
+
+      <!-- Submit -->
+      <div style="margin-bottom:20px;">
+        <%= f.submit "Sign up", style: "width:100%; background:#000; color:#fff; font-weight:bold; font-size:18px; padding:12px; border-radius:6px; border:none; cursor:pointer;" %>
+      </div>
+    <% end %>
+
+    <!-- OR Divider -->
+    <div style="display:flex; align-items:center; margin:24px 0;">
+      <hr style="flex:1; border:none; border-top:1px solid #d1d5db;">
+      <span style="margin:0 8px; color:#6b7280;">or</span>
+      <hr style="flex:1; border:none; border-top:1px solid #d1d5db;">
+    </div>
+
+    <!-- Google Sign Up -->
+    <div style="margin-bottom:20px;">
+      <a id="google-signup-btn"
+         href="#"
+         style="display:inline-block; width:100%; text-align:center; background:#dc2626; color:#fff; font-weight:bold; font-size:18px; padding:12px; border-radius:6px; text-decoration:none; cursor:pointer;">
+         Sign up with Google
+      </a>
+    </div>
+
+    <!-- Bottom Links -->
+    <div style="text-align:center; font-size:16px;">
+      <%= link_to "Log in", new_session_path(resource_name), style: "color:#2563eb; text-decoration:none;" %>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript to inject role into Google OAuth -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const roleSelect = document.getElementById("role-select");
+    const googleBtn = document.getElementById("google-signup-btn");
+
+    googleBtn.addEventListener("click", function(e) {
+      e.preventDefault();
+      const selectedRole = roleSelect.value || "user";
+      const redirectUrl = `/users/auth/google_oauth2?role=${selectedRole}`;
+      window.location.href = redirectUrl;
+    });
+  });
+</script>

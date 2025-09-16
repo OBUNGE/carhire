@@ -1,0 +1,18 @@
+<h1>Request to Buy This Car</h1>
+
+<%= form_with url: car_purchase_path(@car), model: @purchase, local: true do |form| %>
+
+  <div class="field">
+    <%= form.label :message, "Your message to the owner" %><br>
+    <%= form.text_area :message, rows: 5 %>
+  </div>
+
+  <div class="field">
+    <%= form.label :buyer_contact, "Your contact info (email or phone)" %><br>
+    <%= form.text_field :buyer_contact %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "Send Purchase Request" %>
+  </div>
+<% end %>

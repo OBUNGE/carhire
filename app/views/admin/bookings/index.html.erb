@@ -1,0 +1,46 @@
+<h1>Admin Dashboard: Recent Bookings</h1>
+
+<!-- Filter Bar -->
+<div style="margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+  <%= link_to "All", admin_bookings_path, 
+        class: "filter-btn #{params[:filter].blank? ? 'active' : ''}",
+        data: { turbo_frame: "bookings_table" } %>
+
+  <%= link_to "Refundable", admin_bookings_path(filter: "refundable"), 
+        class: "filter-btn #{params[:filter] == 'refundable' ? 'active' : ''}",
+        data: { turbo_frame: "bookings_table" } %>
+
+  <%= link_to "Unpaid", admin_bookings_path(filter: "unpaid"), 
+        class: "filter-btn #{params[:filter] == 'unpaid' ? 'active' : ''}",
+        data: { turbo_frame: "bookings_table" } %>
+
+  <%= link_to "Pending Payouts", admin_bookings_path(filter: "pending_payout"), 
+        class: "filter-btn #{params[:filter] == 'pending_payout' ? 'active' : ''}",
+        data: { turbo_frame: "bookings_table" } %>
+</div>
+
+<style>
+  .filter-btn {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #374151;
+    background-color: #f9fafb;
+    font-size: 13px;
+  }
+  .filter-btn.active {
+    background-color: #2563eb;
+    color: white;
+    border-color: #2563eb;
+  }
+  .filter-btn:hover {
+    background-color: #e5e7eb;
+  }
+</style>
+<div id="flash"></div>
+<turbo-frame id="bookings_table">
+  <%= render partial: "bookings_table", locals: { bookings: @bookings } %>
+</turbo-frame>
+
+

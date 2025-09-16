@@ -1,0 +1,22 @@
+<%= form_with url: pay_booking_path(booking), method: :post, local: true do %>
+  <%= hidden_field_tag :payment_type, "deposit" %>
+
+  <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+    <%= select_tag :country_code, options_for_select([
+          ['🇰🇪 +254 Kenya', '254'],
+          ['🇹🇿 +255 Tanzania', '255'],
+          ['🇺🇬 +256 Uganda', '256'],
+          ['🇷🇼 +250 Rwanda', '250'],
+          ['🇧🇮 +257 Burundi', '257']
+        ], '254'),
+        style: "padding:8px; border:1px solid #ccc; border-radius:4px;" %>
+
+    <%= text_field_tag :phone_number, nil,
+          required: true,
+          placeholder: "7XXXXXXXX",
+          style: "flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;" %>
+  </div>
+
+  <%= submit_tag "Pay Deposit (KES #{booking.deposit_amount})",
+        style: "background:#d97706; color:#fff; padding:10px 16px; border:none; border-radius:6px; font-size:16px; cursor:pointer;" %>
+<% end %>

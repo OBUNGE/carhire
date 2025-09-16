@@ -1,0 +1,66 @@
+import { Controller } from "@hotwired/stimulus"
+
+// Handles live countdown updates + urgency colour-coding
+export default class extends Controller {
+  static values = {
+    until: String,          // ISO8601 target time
+    urgentThreshold: Number, // milliseconds (e.g. <24h)
+    warningThreshold: Number // milliseconds (e.g. <48h)
+  }
+
+  connect() {
+    if (!this.untilValue) {
+      this.element.textContent = "No return time set"
+      this.element.classList.add("text-gray-500")
+      return
+    }
+
+    this.targetTime = Date.parse(this.untilValue)
+    if (isNaN(this.targetTime)) {
+      this.element.textContent = "Invalid return time"
+      this.element.classList.add("text-gray-500")
+      return
+    }
+
+    // Initial draw + tick every second
+    this.update()
+    this.timer = setInterval(() => this.update(), 1000)
+  }
+
+  disconnect() {
+    if (this.timer) {
+      clearInterval(this.timer)
+      this.timer = null
+    }
+  }
+
+  update() {
+    const now = Date.now()
+    const distance = this.targetTime - now
+
+    if (distance <= 0) {
+      this.element.textContent = "Time's up!"
+      this.element.classList.remove("text-orange-600", "text-red-600", "font-semibold", "font-bold")
+      this.element.classList.add("text-gray-500")
+      this.disconnect()
+      return
+    }
+
+    // Days, hours, minutes, seconds
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24))
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000)
+
+    this.element.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`
+
+    // Apply warning/urgent styles
+    this.element.classList.remove("text-orange-600", "text-red-600", "font-semibold", "font-bold")
+
+    if (this.urgentThresholdValue && distance <= this.urgentThresholdValue) {
+      this.element.classList.add("text-red-600", "font-bold")
+    } else if (this.warningThresholdValue && distance <= this.warningThresholdValue) {
+      this.element.classList.add("text-orange-600", "font-semibold")
+    }
+  }
+}

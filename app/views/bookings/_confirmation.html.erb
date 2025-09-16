@@ -1,0 +1,69 @@
+<h2 style="font-size:24px;font-weight:700;margin-bottom:16px;color:#2563eb;">
+  Booking Confirmed ✅
+</h2>
+
+<div style="background:#f9f9f9;border:1px solid #ddd;border-radius:12px;padding:20px;max-width:600px;">
+  <p style="font-size:16px;margin-bottom:8px;">
+    <strong>Car:</strong>
+    <%= booking.car&.make %> <%= booking.car&.model %>
+  </p>
+  <p style="font-size:16px;margin-bottom:8px;">
+    <strong>Start Date:</strong>
+<%= booking.start_time&.strftime("%B %d, %Y") || "Not set" %>
+
+  </p>
+  <p style="font-size:16px;margin-bottom:8px;">
+<strong>End Date:</strong>
+<%= booking.planned_return_at&.strftime("%B %d, %Y") || "Not set" %>
+
+  </p>
+  <p style="font-size:16px;margin-bottom:8px;">
+    <strong>Price per Day:</strong>
+    KES <%= number_with_delimiter(booking.car&.price, delimiter: ",") %>
+  </p>
+</div>
+
+<p style="margin-top:20px;font-size:15px;color:#444;">
+  Your booking has been successfully submitted. The owner has been notified.  
+  You can now schedule a viewing or contact the owner directly to arrange pick‑up.
+</p>
+
+<div style="margin-top:20px;display:flex;flex-direction:column;gap:10px;max-width:600px;">
+  <!-- Schedule Viewing -->
+  <%= link_to "📅 Schedule Viewing / Pick‑Up Date",
+            new_booking_viewing_path(booking),
+            style: "display:block;text-align:center;background:#10b981;color:white;padding:12px;border-radius:8px;text-decoration:none;font-weight:600;transition:background 0.2s ease;",
+            onmouseover: "this.style.background='#059669';",
+            onmouseout: "this.style.background='#10b981';" %>
+
+  <!-- Call Owner -->
+  <%= link_to "📞 Call Owner", 
+      "tel:#{booking.car&.owner&.phone_number}", 
+      style: "display:block;text-align:center;background:#2563eb;color:white;padding:12px;border-radius:8px;text-decoration:none;font-weight:600;transition:background 0.2s ease;",
+      onmouseover: "this.style.background='#1e4ed8';",
+      onmouseout: "this.style.background='#2563eb';" %>
+
+  <!-- Email Owner -->
+  <%= link_to "✉ Email Owner", 
+      "mailto:#{booking.car&.owner&.email}?subject=Regarding%20my%20car%20booking", 
+      style: "display:block;text-align:center;background:#f59e0b;color:white;padding:12px;border-radius:8px;text-decoration:none;font-weight:600;transition:background 0.2s ease;",
+      onmouseover: "this.style.background='#d97706';",
+      onmouseout: "this.style.background='#f59e0b';" %>
+
+  <!-- Back to Dashboard -->
+  <%= link_to "⬅ Back to Dashboard", 
+      renter_dashboard_path, 
+      style: "display:block;text-align:center;background:#f3f4f6;color:#111;padding:12px;border-radius:8px;text-decoration:none;font-weight:500;" %>
+
+  <!-- Close Modal -->
+  <button type="button" onclick="closeBookingModal()" 
+      style="display:block;text-align:center;background:#e5e7eb;color:#111;padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:500;">
+    Close
+  </button>
+  <div id="flash-messages">
+  <% flash.each do |type, message| %>
+    <div class="flash <%= type %>"><%= message %></div>
+  <% end %>
+</div>
+
+</div>

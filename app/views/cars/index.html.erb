@@ -1,0 +1,135 @@
+<!-- Search + Filters (One-Line Airbnb Style with Blue) -->
+<%= form_with url: cars_path, method: :get, local: true, 
+  style: "display:flex;justify-content:center;align-items:center;gap:12px;max-width:900px;margin:40px auto;padding:10px 14px;background:#fff;border:1px solid #ddd;border-radius:50px;box-shadow:0 4px 12px rgba(0,0,0,0.08);" do %>
+
+  <!-- Search Bar -->
+  <input type="text" name="query" value="<%= params[:query] %>"
+         placeholder="Search cars..." 
+         style="flex:1;min-width:200px;max-width:300px;padding:12px 16px;border:1px solid #ccc;border-radius:30px;font-size:16px;outline:none;transition:border 0.2s ease;"
+         onfocus="this.style.border='1px solid #2563eb';"
+         onblur="this.style.border='1px solid #ccc';">
+
+  <!-- Price Filter -->
+  <select name="price_range" 
+          style="padding:12px 16px;border:1px solid #ccc;border-radius:30px;font-size:16px;background:white;outline:none;transition:border 0.2s ease;">
+    <option value="">All Prices</option>
+    <option value="low" <%= "selected" if params[:price_range] == "low" %>>Below KES 5,000/day</option>
+    <option value="mid" <%= "selected" if params[:price_range] == "mid" %>>KES 5,000 - KES 20,000/day</option>
+    <option value="high" <%= "selected" if params[:price_range] == "high" %>>Above KES 100,000/day</option>
+  </select>
+
+  <!-- Filter Button -->
+  <%= submit_tag "Filter", 
+      style: "padding:12px 24px;background:#2563eb;color:white;border:none;border-radius:30px;cursor:pointer;font-size:16px;font-weight:500;transition:background 0.2s ease;",
+      onmouseover: "this.style.background='#1e40af';",
+      onmouseout: "this.style.background='#2563eb';" %>
+
+  <!-- Clear Filters -->
+  <%= link_to "Clear", cars_path, 
+      style: "padding:12px 24px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:30px;cursor:pointer;text-decoration:none;color:#111;font-size:16px;font-weight:500;transition:background 0.2s ease;",
+      onmouseover: "this.style.background='#e5e7eb';",
+      onmouseout: "this.style.background='#f3f4f6';" %>
+<% end %>
+
+<!-- Categories -->
+<div id="categoriesBar" 
+     style="max-width:1200px;margin:20px auto;padding:0 16px;overflow-x:auto;white-space:nowrap;display:flex;gap:24px;justify-content:center;">
+  <% categories = [
+    { name: "SUV", icon: "🚙" },
+    { name: "Sedan", icon: "🚗" },
+    { name: "Hatchback", icon: "🚘" },
+    { name: "Truck", icon: "🚚" },
+    { name: "Van", icon: "🚐" },
+    { name: "Luxury", icon: "💎" },
+    { name: "Convertible", icon: "🌞" },
+    { name: "Electric Car", icon: "⚡" },
+    { name: "Other", icon: "🚘" }
+  ] %>
+
+  <% categories.each do |cat| %>
+    <%= link_to cars_path(category: cat[:name], query: params[:query], price_range: params[:price_range]),
+                style: "flex:0 0 auto;display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:8px 12px;border-radius:12px;transition:all 0.2s ease;border:1px solid #{params[:category] == cat[:name] ? 'black' : 'transparent'};text-decoration:none;color:inherit;" do %>
+      <div style="font-size:26px;margin-bottom:6px;"><%= cat[:icon] %></div>
+      <span style="font-size:14px;color:#555;font-weight:500;white-space:nowrap;"><%= cat[:name] %></span>
+    <% end %>
+  <% end %>
+</div>
+<!-- Cars Carousel -->
+<div style="max-width:1200px; margin:20px auto; padding:0 16px; position:relative;">
+
+  <!-- Arrows above right -->
+  <div style="position:absolute; top:-40px; right:0; display:flex; gap:8px;">
+    <button id="prevCars" style="background:#2563eb; color:white; border:none; border-radius:4px; width:32px; height:32px; cursor:pointer; display:none;">‹</button>
+    <button id="nextCars" style="background:#2563eb; color:white; border:none; border-radius:4px; width:32px; height:32px; cursor:pointer;">›</button>
+  </div>
+
+  <!-- Scrollable container -->
+  <div id="carsCarousel" style="display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:20px; padding-bottom:10px; scroll-behavior:smooth;">
+    
+    <% @cars.each do |car| %>
+      <div class="car-card" 
+           style="flex:0 0 auto; scroll-snap-align:start; border:1px solid #ddd; border-radius:12px; overflow:hidden; background:white; transition:transform 0.2s; width:calc((100% / 6) - 20px);">
+        
+        <!-- Image area (square) -->
+        <div style="position:relative; width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:8px;">
+          <% if user_signed_in? %>
+            <div style="position:absolute; top:8px; right:8px; z-index:10;">
+              <% if current_user.favorites.exists?(car_id: car.id) %>
+                <%= button_to "❤", favorite_path(current_user.favorites.find_by(car_id: car.id)),
+                    method: :delete,
+                    style: "background:rgba(255,255,255,0.9); border:none; border-radius:50%; width:36px; height:36px; cursor:pointer; font-size:18px; color:red; line-height:1; text-align:center;",
+                    form: { data: { turbo_frame: '_top' } } %>
+              <% else %>
+                <%= button_to "♡", favorites_path(car_id: car.id),
+                    method: :post,
+                    style: "background:rgba(255,255,255,0.9); border:none; border-radius:50%; width:36px; height:36px; cursor:pointer; font-size:18px; color:#555; line-height:1; text-align:center;",
+                    form: { data: { turbo_frame: '_top' } } %>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if car.images.attached? %>
+            <%= image_tag car.images.first.variant(resize_to_limit: [300, 200]),
+                style: "width:100%; height:150px; object-fit:cover;" %>
+          <% else %>
+            <div style="width:100%; height:150px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; color:#888;">
+              No image
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Car Info -->
+        <div style="padding:12px;">
+          <h3 style="font-size:16px; font-weight:600; margin-bottom:4px;"><%= car.make %> <%= car.model %></h3>
+          <p style="font-size:14px; color:#666; margin-bottom:4px;">Category: <%= car.category %></p>
+          <p style="font-size:14px; color:#333; font-weight:bold; margin-bottom:6px;">Price: KES<%= car.price %>/day</p>
+
+          <% rating_value = begin
+               if car.respond_to?(:rating) && car.rating.present?
+                 car.rating.to_f
+               else
+                 (car.reviews.average(:rating) || 4.5).to_f
+               end
+             rescue
+               4.5
+             end.round(1) %>
+
+          <div style="display:flex; align-items:center; gap:4px; margin-bottom:8px;">
+            <div style="display:inline-block; position:relative; font-size:14px; line-height:1; color:#ccc;">
+              <div style="position:absolute; top:0; left:0; white-space:nowrap; overflow:hidden; width:<%= (rating_value/5.0*100).round(0) %>%; color:#f39c12;">
+                ★★★★★
+              </div>
+              ★★★★★
+            </div>
+            <span style="font-size:14px; color:#333;"><%= rating_value %>/5</span>
+          </div>
+
+          <!-- View Button -->
+          <%= link_to "View This Car", car_path(car), 
+              style: "display:block; text-align:center; background:#2563eb; color:white; padding:8px 0; border-radius:6px; text-decoration:none; font-size:14px; font-weight:500; transition:background 0.3s ease;" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+

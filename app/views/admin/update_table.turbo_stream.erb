@@ -1,0 +1,11 @@
+<%= turbo_stream.replace "bookings_table" do %>
+  <%= render partial: "bookings_table", locals: { bookings: @bookings } %>
+<% end %>
+
+<%= turbo_stream.prepend "flash" do %>
+  <div class="flash-messages">
+    <% flash.each do |type, message| %>
+      <div class="flash <%= type %>"><%= message %></div>
+    <% end %>
+  </div>
+<% end %>

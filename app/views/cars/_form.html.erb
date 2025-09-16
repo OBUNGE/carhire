@@ -1,0 +1,172 @@
+<% if flash[:notice] %>
+  <div class="form-group flash-message" id="flash-notice" style="background:#e6ffed; border:1px solid #a7f3d0; color:#065f46; padding:12px; border-radius:6px;">
+    <strong>Success:</strong> <%= flash[:notice] %>
+  </div>
+<% elsif flash[:alert] %>
+  <div class="form-group flash-message" id="flash-alert" style="background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; padding:12px; border-radius:6px;">
+    <strong>Error:</strong> <%= flash[:alert] %>
+  </div>
+<% end %>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const flashNotice = document.getElementById("flash-notice");
+  const flashAlert = document.getElementById("flash-alert");
+
+  [flashNotice, flashAlert].forEach((el) => {
+    if (el) {
+      setTimeout(() => {
+        el.style.transition = "opacity 0.5s ease-out";
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 500);
+      }, 4000); // visible for 4 seconds
+    }
+  });
+});
+</script>
+
+
+<div class="car-form-wrapper">
+  <h1>Add or Edit Car</h1>
+
+  <%= form_with(model: car, local: true) do |form| %>
+    <% if car.errors.any? %>
+      <div class="form-group" style="background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; padding:12px; border-radius:6px;">
+        <strong><%= pluralize(car.errors.count, "error") %> prevented this car from being saved:</strong>
+        <ul>
+          <% car.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- Basic Info -->
+    <div class="form-group">
+      <%= form.label :make %>
+      <%= form.text_field :make %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :model %>
+      <%= form.text_field :model %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :year %>
+      <%= form.number_field :year %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :price, "Price (KES)" %>
+      <%= form.number_field :price, step: 50 %>
+    </div>
+
+    <!-- Specs -->
+    <div class="form-group">
+      <%= form.label :transmission_type %>
+      <%= form.select :transmission_type, ["Automatic", "Manual"], prompt: "Select transmission type" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :fuel_type %>
+      <%= form.select :fuel_type, ["Petrol", "Diesel", "Electric", "Hybrid"], prompt: "Select fuel type" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :insurance_status %>
+      <%= form.select :insurance_status, ["Fully insured", "Third-party", "Not insured"], prompt: "Select insurance status" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :seats, "Number of Seats" %>
+      <%= form.number_field :seats, min: 1, max: 100, step: 1, placeholder: "e.g. 5" %>
+    </div>
+
+    <!-- Listing Type -->
+    <div class="form-group">
+      <%= form.label :listing_type %>
+      <div class="radio-group">
+        <% Car::LISTING_TYPES.each do |type| %>
+          <label>
+            <%= form.radio_button :listing_type, type %>
+            <%= type.titleize %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :deposit_amount, "Security Deposit (KES)" %>
+      <%= form.number_field :deposit_amount, step: 50, min: 0 %>
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <%= form.label :description %>
+      <%= form.text_area :description, rows: 4 %>
+    </div>
+
+    <!-- Existing Images -->
+    <% if car.images.attached? %>
+      <div class="form-group">
+        <label>Existing Images</label>
+        <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;">
+          <% car.images.each do |image| %>
+            <% if image.persisted? %>
+              <div style="border:1px solid #ccc; padding:8px; border-radius:6px;">
+                <%= image_tag image.variant(resize_to_limit: [200, 200]), class: "rounded-lg w-full h-auto" %>
+                <label style="display:flex; align-items:center; gap:6px; margin-top:8px;">
+                  <%= check_box_tag "car[remove_image_ids][]", image.id, false %>
+                  <span>Remove</span>
+                </label>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Upload New Images -->
+    <div class="form-group image-preview" data-controller="image-preview">
+      <%= form.label :images, "Add More Images" %>
+      <div data-image-preview-target="dropzone"
+           data-action="dragover->image-preview#highlight dragleave->image-preview#unhighlight drop->image-preview#drop">
+        <p>Drag & drop images here or click to select</p>
+        <%= form.file_field :images, multiple: true, direct_upload: true,
+              data: { action: "change->image-preview#preview" },
+              class: "hidden", id: "car_images_input" %>
+      </div>
+      <div id="preview" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; margin-top:16px;"></div>
+    </div>
+
+    <!-- Location -->
+    <div class="form-group">
+      <%= form.label :pickup_address %>
+      <%= form.text_field :pickup_address %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :latitude %>
+      <%= form.text_field :latitude %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :longitude %>
+      <%= form.text_field :longitude %>
+    </div>
+
+    <!-- Category -->
+    <div class="form-group">
+      <%= form.label :category %>
+      <%= form.select :category, [
+          'SUV', 'Sedan', 'Hatchback', 'Truck', 'Van', 'Luxury', 'Convertible', 'Electric Car', 'Other'
+        ], { prompt: 'Select a category' } %>
+    </div>
+
+    <!-- Buttons -->
+    <div class="button-group">
+      <%= form.submit "Save as Draft", name: "draft", class: "button-secondary" %>
+      <%= form.submit "Publish", name: "publish", class: "button-primary" %>
+    </div>
+  <% end %>
+</div>

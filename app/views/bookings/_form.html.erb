@@ -1,0 +1,101 @@
+<%= form_with(
+      model: [car, booking],
+      data: { turbo_frame: "bookingModalContent" },
+      local: true,
+      style: "max-width:700px;margin:30px auto;padding:20px;background:#fff;border:1px solid #ddd;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:16px;"
+    ) do |form| %>
+
+
+  <h2 style="font-size:20px;font-weight:600;margin-bottom:8px;">Book This Car</h2>
+  <p style="font-size:14px;color:#555;margin-bottom:16px;">
+    Please provide accurate details to help the owner prepare your booking. Your information is kept private and secure.
+  </p>
+
+  <!-- Full Name -->
+  <div>
+    <%= form.label :full_name, "Full Name", style: "font-weight:600;" %>
+    <%= form.text_field :full_name, required: true, style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;" %>
+  </div>
+
+  <!-- Contact Number -->
+  <div>
+    <%= form.label :contact_number, "Contact Number", style: "font-weight:600;" %>
+    <%= form.telephone_field :contact_number, required: true, style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;" %>
+  </div>
+
+  <!-- Start Date & Time -->
+  <div>
+    <%= form.label :start_time, "Start Date & Time", style: "font-weight:600;" %>
+    <%= form.datetime_local_field :start_time, id: "booking_start_time", required: true, style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;" %>
+  </div>
+
+  <!-- Planned Return Date & Time -->
+  <div>
+    <%= form.label :planned_return_at, "Planned Return Date & Time", style: "font-weight:600;" %>
+    <%= form.datetime_local_field :planned_return_at, id: "booking_planned_return_at", required: true, style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;" %>
+  </div>
+
+  <!-- ID Number -->
+  <div>
+    <%= form.label :id_number, "ID Number", style: "font-weight:600;" %>
+    <%= form.text_field :id_number, required: true, style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;" %>
+    <small style="color:#777;font-size:12px;">Used only for verification. Never shared publicly.</small>
+  </div>
+
+  <!-- Purpose of Rental -->
+  <div>
+    <%= form.label :purpose, "Purpose of Rental", style: "font-weight:600;" %>
+    <%= form.select :purpose, ["Business", "Leisure", "Event", "Other"], { prompt: "Select purpose" }, required: true, style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;background:white;" %>
+  </div>
+
+  <!-- Nationality -->
+  <div>
+    <%= form.label :nationality, "Nationality", style: "font-weight:600;" %>
+    <%= form.text_field :nationality, required: true, style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;" %>
+  </div>
+
+  <!-- Delivery Method -->
+  <div>
+    <%= form.label :delivery_method, "Delivery Method", style: "font-weight:600;" %>
+    <%= form.select :delivery_method, ["Owner delivers to you", "Pick up from owner"], { prompt: "Select delivery method" }, required: true, style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;background:white;" %>
+  </div>
+
+  <!-- Pickup Location -->
+  <div>
+    <%= form.label :pickup_location, "Pickup Location", style: "font-weight:600;" %>
+    <%= form.text_field :pickup_location, style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;" %>
+    <small style="color:#777;font-size:12px;">Exact address shared only after booking confirmation.</small>
+  </div>
+
+  <!-- Require a Driver -->
+  <div>
+    <%= form.label :has_driver, "Require a driver?", style: "font-weight:600;" %>
+    <%= form.select :has_driver, [["Yes", true], ["No", false]], { prompt: "Select an option" }, required: true, style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;background:white;" %>
+  </div>
+
+  <!-- Special Requests -->
+  <div>
+    <%= form.label :special_requests, "Special Requests (optional)", style: "font-weight:600;" %>
+    <%= form.text_area :special_requests, style: "width:100%;min-height:60px;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;" %>
+  </div>
+
+  <!-- Terms Agreement -->
+  <div style="display:flex;align-items:center;gap:8px;">
+    <%= form.check_box :terms, { required: true }, "1", "0" %>
+    <label style="font-size:14px;color:#555;">
+      I agree to the <%= link_to "rental terms and conditions", terms_path, style: "color:#2563eb;text-decoration:none;" %>.
+    </label>
+  </div>
+
+  <!-- Submit -->
+  <%= form.submit "Confirm Booking", 
+      style: "flex:1; padding:12px 20px;background:#2563eb;color:white;border:none;border-radius:8px;cursor:pointer;font-size:16px;font-weight:600;transition:background 0.2s ease;",
+      onmouseover: "this.style.background='#1e4ed8';",
+      onmouseout: "this.style.background='#2563eb';" %>
+
+  <button type="button" onclick="closeBookingModal()" 
+      style="flex:1; padding:12px 20px;background:#f3f4f6;color:#111;border:none;border-radius:8px;cursor:pointer;font-size:16px;font-weight:600;transition:background 0.2s ease;">
+    Cancel
+  </button>
+
+<% end %>

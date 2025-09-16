@@ -1,0 +1,26 @@
+<h2 class="text-2xl font-bold mb-4">Your Bookings</h2>
+
+<% if @bookings.any? %>
+  <% @bookings.each do |booking| %>
+    <div class="border p-4 mb-3 rounded bg-white shadow">
+      <p><strong>Car:</strong> <%= booking.car.name %></p>
+
+      <p>
+        <strong>Dates:</strong>
+        <%= booking.start_date %> to <%= booking.end_date %>
+      </p>
+
+      <p><strong>Status:</strong> <%= booking.status.titleize %></p>
+
+      <!-- Countdown Timer -->
+      <div id="booking_actions_<%= booking.id %>">
+  <%= render "booking_actions", booking: booking %>
+</div>
+
+
+      <%= link_to "View", booking_path(booking), class: "text-blue-600 underline" %>
+    </div>
+  <% end %>
+<% else %>
+  <p class="text-gray-600">You have no bookings yet.</p>
+<% end %>

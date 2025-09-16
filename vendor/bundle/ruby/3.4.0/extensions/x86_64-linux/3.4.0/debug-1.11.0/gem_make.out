@@ -1,0 +1,19 @@
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/debug-1.11.0/ext/debug
+/home/omondi/.local/share/mise/installs/ruby/3.4.5/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-hv7r5h sitelibdir\=./.gem.20250824-4182-hv7r5h clean
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-hv7r5h sitelibdir\=./.gem.20250824-4182-hv7r5h
+compiling debug.c
+compiling iseq_collector.c
+linking shared-object debug/debug.so
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-hv7r5h sitelibdir\=./.gem.20250824-4182-hv7r5h install
+/usr/bin/install -c -m 0755 debug.so ./.gem.20250824-4182-hv7r5h/debug
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-hv7r5h sitelibdir\=./.gem.20250824-4182-hv7r5h clean

@@ -1,0 +1,67 @@
+<% if cars.any? %>
+  <ul class="space-y-6">
+    <% cars.each do |car| %>
+        <% if car.status == "published" %>
+  <span style="background:#e6ffed; color:#065f46; font-size:12px; padding:4px 8px; border-radius:4px; font-weight:600;">
+    Published
+  </span>
+<% elsif car.status == "draft" %>
+  <span style="background:#fef2f2; color:#991b1b; font-size:12px; padding:4px 8px; border-radius:4px; font-weight:600;">
+    Draft
+  </span>
+<% elsif car.status == "sold" %>
+  <span style="background:#fefce8; color:#92400e; font-size:12px; padding:4px 8px; border-radius:4px; font-weight:600;">
+    Sold
+  </span>
+<% end %>
+<span class="status-badge status-<%= car.status %>">
+  <%= car.status.capitalize %>
+</span>
+<div style="margin-bottom:16px;">
+  <%= link_to "Show Published", owner_dashboard_path(status: "published"), class: "btn" %>
+  <%= link_to "Show Drafts", owner_dashboard_path(status: "draft"), class: "btn" %>
+  <%= link_to "Show Sold", owner_dashboard_path(status: "sold"), class: "btn" %>
+</div>
+
+      <li class="border p-4 rounded-md bg-white shadow-sm">
+        <h2 class="text-xl font-semibold mb-1">
+          <%= car.name.presence || "#{car.make || 'Unknown Make'} #{car.model || 'Unknown Model'}" %> 
+          (<%= car.year.presence || "Year N/A" %>)
+        </h2>
+
+        <p class="mb-2">
+          Price:
+          <% if car.for_rent? %>
+            KES <%= number_to_currency(car.price, unit: '') %> per day
+          <% elsif car.for_sale? %>
+            KES <%= number_to_currency(car.price, unit: '') %> total
+          <% else %>
+            Not listed
+          <% end %>
+        </p>
+
+        <p class="mb-2">
+          Current Listing Type:
+          <strong><%= car.listing_type.present? ? car.listing_type.titleize : "Not specified" %></strong>
+        </p>
+
+        <div class="mt-4">
+          <%= form_with model: car, url: car_path(car), method: :patch, local: true do |f| %>
+            <%= f.label :listing_type, "Change Listing Type", class: "block font-medium mb-1" %>
+            <%= f.select :listing_type, Car::LISTING_TYPES.map { |type| [type.titleize, type] }, {}, class: "form-select mb-2" %>
+            <%= f.submit "Update", class: "px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500" %>
+          <% end %>
+        </div>
+
+        <div class="mt-4 space-x-2">
+          <%= link_to "View", car_path(car), class: "px-3 py-2 bg-blue-100 rounded hover:bg-blue-200" %>
+          <%= link_to "Edit", edit_car_path(car), class: "px-3 py-2 bg-gray-100 rounded hover:bg-gray-200" %>
+          <%= button_to "Delete", car_path(car), method: :delete, data: { turbo_confirm: "Are you sure?" }, local: true, class: "px-3 py-2 bg-red-600 text-white rounded hover:bg-red-500" %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-gray-600">You haven’t listed any cars yet.</p>
+  <%= link_to "List a new car", new_car_path, class: "mt-4 inline-block px-4 py-2 bg-green-600 text-white rounded" %>
+<% end %>

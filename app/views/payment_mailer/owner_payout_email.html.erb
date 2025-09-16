@@ -1,0 +1,14 @@
+<h2>Payout Sent</h2>
+
+<p>Hello <%= @booking.owner.name %>,</p>
+
+<p>We’ve sent your payout for Booking #<%= @booking.id %> (<%= @booking.car.name %>).</p>
+
+<ul>
+  <li><strong>Amount:</strong> KES <%= number_to_currency(@amount, unit: "", precision: 2) %></li>
+  <li><strong>Receipt Number:</strong> <%= @receipt %></li>
+  <li><strong>Booking Period:</strong> <%= @booking.start_time.strftime("%d %b %Y %H:%M") %> – <%= @booking.end_time.strftime("%d %b %Y %H:%M") %></li>
+</ul>
+
+<p>Thank you for using Carhire!</p>
+<p>Log in to your dashboard to view the details.</p>

@@ -1,0 +1,46 @@
+<div class="mt-12">
+  <h2 class="text-2xl font-bold mb-4">Bookings for Your Cars</h2>
+  <% if owner_bookings.any? %>
+    <div class="space-y-6">
+      <% owner_bookings.each do |booking| %>
+        <div class="border p-4 rounded bg-white shadow">
+          <h3 class="text-lg font-semibold mb-2">Booking for <%= booking.car.name %></h3>
+
+          <p><strong>Renter Name:</strong> <%= booking.renter.full_name.presence || "Not provided" %></p>
+          <p><strong>Renter Email:</strong> <%= booking.renter.email %></p>
+          <p><strong>Renter Phone:</strong> <%= booking.renter.phone_number %></p>
+
+          <p><strong>Start Date & Time:</strong>
+            <%= booking.start_time&.strftime("%b %d, %Y %I:%M %p") || "Not set" %>
+          </p>
+
+          <p><strong>Planned Return:</strong>
+            <%= booking.planned_return_at&.strftime("%b %d, %Y %I:%M %p") || "Not set" %>
+          </p>
+
+          <p><strong>ID Number:</strong> <%= booking.id_number || "Not provided" %></p>
+          <p><strong>Purpose:</strong> <%= booking.purpose %></p>
+          <p><strong>Nationality:</strong> <%= booking.nationality %></p>
+          <p><strong>Delivery Method:</strong> <%= booking.delivery_method %></p>
+          <p><strong>Pickup Location:</strong> <%= booking.pickup_location || "Not provided" %></p>
+          <p><strong>Has Driver?:</strong> <%= booking.has_driver? ? "Yes" : "No" %></p>
+
+          <p><strong>Status:</strong> <%= booking.status.titleize %></p>
+
+          <div id="booking_actions_<%= booking.id %>">
+          class="min-h-[2.5rem] flex items-center gap-3">
+  <%= render "booking_actions", booking: booking %>
+</div>
+
+
+          <div class="mt-2 space-x-4">
+            <%= button_to "Approve", approve_booking_path(booking), method: :patch, local: true, class: "px-3 py-2 bg-green-600 text-white rounded" %>
+            <%= button_to "Reject", reject_booking_path(booking), method: :patch, local: true, class: "px-3 py-2 bg-red-600 text-white rounded" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-600">No bookings for your cars yet.</p>
+  <% end %>
+</div>

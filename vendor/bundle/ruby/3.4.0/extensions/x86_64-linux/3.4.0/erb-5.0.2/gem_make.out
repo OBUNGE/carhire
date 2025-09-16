@@ -1,0 +1,19 @@
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/erb-5.0.2/ext/erb/escape
+/home/omondi/.local/share/mise/installs/ruby/3.4.5/bin/ruby extconf.rb
+checking for rb_ext_ractor_safe() in ruby.h... yes
+creating Makefile
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/erb-5.0.2/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-cmypd6 sitelibdir\=./.gem.20250824-4182-cmypd6 clean
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/erb-5.0.2/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-cmypd6 sitelibdir\=./.gem.20250824-4182-cmypd6
+compiling escape.c
+linking shared-object erb/escape.so
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/erb-5.0.2/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-cmypd6 sitelibdir\=./.gem.20250824-4182-cmypd6 install
+/usr/bin/install -c -m 0755 escape.so ./.gem.20250824-4182-cmypd6/erb
+
+current directory: /home/omondi/dev/rails/carhire/vendor/bundle/ruby/3.4.0/gems/erb-5.0.2/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20250824-4182-cmypd6 sitelibdir\=./.gem.20250824-4182-cmypd6 clean

@@ -1,0 +1,349 @@
+/* Base header styles */
+.site-header {
+  background: #2563eb;
+  color: white;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo-link {
+  font-weight: 700;
+  font-size: 20px;
+  color: white;
+  text-decoration: none;
+}
+
+/* Nav links - desktop */
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #dbeafe;
+}
+
+.logout-btn {
+  background: white;
+  color: #2563eb;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #f3f4f6;
+}
+
+/* Hamburger button - hidden on desktop */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Mobile menu styles */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: #2563eb;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    width: 200px;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .nav-links.open {
+    transform: translateX(0);
+  }
+}
+
+/* welcome banner */
+
+.welcome-banner {
+  background: #2563eb;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.welcome-banner h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.welcome-banner p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/*car.index.html*/
+.car-slider-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 16px;
+  position: relative;
+}
+
+.car-slider-arrows {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  display: flex;
+  gap: 8px;
+}
+
+.car-slider-arrows button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+#carsCarousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 20px;
+  padding-bottom: 10px;
+  scroll-behavior: smooth;
+}
+
+.car-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  transition: transform 0.2s;
+}
+
+.car-card-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.car-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.car-card-info {
+  padding: 12px;
+}
+
+.car-card-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.car-card-info p {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.car-card-info .price {
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.car-card-info .view-btn {
+  display: block;
+  text-align: center;
+  background: #2563eb;
+  color: white;
+  padding: 8px 0;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.car-card-info .view-btn:hover {
+  background: #1e4ed8;
+}
+.car-card:hover {
+  transform: translateY(-4px);
+}
+
+/* car _form.html.erb */
+
+/* Layout */
+.car-form-wrapper {
+  max-width: 800px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 32px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Headings */
+.car-form-wrapper h1 {
+  font-size: 28px;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  background: #fff;
+}
+
+/* Radio buttons */
+.radio-group {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: #555;
+}
+
+/* Image preview */
+.image-preview {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  border-radius: 6px;
+  background: #fafafa;
+  margin-bottom: 20px;
+}
+
+/* Buttons */
+.button-group {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.button-primary,
+.button-secondary {
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.button-primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+.button-primary:hover {
+  background-color: #1e4db7;
+}
+
+.button-secondary {
+  background-color: #666;
+  color: white;
+}
+
+.button-secondary:hover {
+  background-color: #444;
+}
+/* Flash message animation */
+
+.flash-message {
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fadeInSlide 0.6s ease-out forwards;
+}
+
+@keyframes fadeInSlide {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* car card dashboard */
+.status-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+.status-published {
+  background: #e6ffed;
+  color: #065f46;
+}
+.status-draft {
+  background: #fef2f2;
+  color: #991b1b;
+}
+.status-sold {
+  background: #fefce8;
+  color: #92400e;
+}
+
+
+

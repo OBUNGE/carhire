@@ -1,0 +1,47 @@
+<%# app/views/bookings/_timer_status.html.erb %>
+<% start_at = booking.rental_start_time %>
+<% end_at   = booking.rental_end_time %>
+
+<div class="text-sm text-gray-800"
+     data-controller="timer"
+     data-timer-start-time-value="<%= start_at&.iso8601 %>">
+
+  <% if start_at.blank? %>
+    <p><strong>Status:</strong> Not started</p>
+    <!-- Hidden output target to satisfy timer controller -->
+    <span data-timer-target="output" hidden></span>
+
+  <% elsif end_at.present? %>
+    <p><strong>Status:</strong> Ended</p>
+    <p>
+      <strong>Total time:</strong>
+      <%= distance_of_time_in_words(start_at, end_at) %>
+      (<%= l end_at, format: :short %>)
+    </p>
+    <!-- Hidden output target to satisfy timer controller -->
+    <span data-timer-target="output" hidden></span>
+
+  <% else %>
+    <p><strong>Status:</strong> Running</p>
+    <p>
+      <strong>Elapsed:</strong>
+      <span data-timer-target="output">
+        <%= distance_of_time_in_words(Time.current, start_at) %>
+      </span>
+    </p>
+  <% end %>
+
+  <% if booking.planned_return_at.present? %>
+    <p><strong>Planned return:</strong> <%= l booking.planned_return_at, format: :short %></p>
+  <% end %>
+</div>
+
+<%# ✅ Overtime note — with proper closing %>
+<% if booking.overtime_days.positive? %>
+  <p class="text-sm text-red-600 mt-1">
+    <strong>Note:</strong>
+    This booking has exceeded the planned return time by
+    <%= booking.overtime_days %> day<%= "s" if booking.overtime_days > 1 %>.
+    Overtime charges may apply.
+  </p>
+<% end %>

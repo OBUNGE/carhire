@@ -1,0 +1,43 @@
+<div class="p-4 bg-white rounded border space-y-2">
+  <h3 class="font-semibold text-lg">Final Invoice (Locked)</h3>
+  <p class="text-gray-600">
+    Sent to <%= booking.renter.full_name %>
+    on <%= booking.invoice_finalized_at.strftime("%b %d, %Y %I:%M %p") %>
+  </p>
+
+  <ul class="space-y-1">
+    <li><strong>Days booked:</strong> <%= booking.planned_days %></li>
+    <li><strong>Overtime used:</strong> <%= booking.overtime_days %></li>
+    <li><strong>Total days used:</strong> <%= booking.total_days_used %></li>
+
+    <li><strong>Base rental fee:</strong>
+      KES <%= number_with_precision(booking.base_rental, precision: 2, delimiter: ",") %>
+    </li>
+
+    <% if booking.overtime_days.positive? %>
+      <li><strong>Overtime fee:</strong>
+        KES <%= number_with_precision(booking.overtime_fee, precision: 2, delimiter: ",") %>
+      </li>
+    <% end %>
+
+    <li><strong>Platform commission:</strong>
+      KES <%= number_with_precision(booking.platform_commission, precision: 2, delimiter: ",") %>
+    </li>
+
+    <li><strong>Owner payout:</strong>
+      KES <%= number_with_precision(booking.owner_payout, precision: 2, delimiter: ",") %>
+    </li>
+
+    <li><strong>Total deductions:</strong>
+      KES <%= number_with_precision(booking.total_deductions, precision: 2, delimiter: ",") %>
+    </li>
+
+    <li><strong>Refund to renter:</strong>
+      KES <%= number_with_precision(booking.refundable_deposit - booking.total_deductions, precision: 2, delimiter: ",") %>
+    </li>
+  </ul>
+
+  <p class="text-green-700 font-semibold mt-2">
+    Invoice is now locked. No further edits possible.
+  </p>
+</div>

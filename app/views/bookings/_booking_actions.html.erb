@@ -1,0 +1,51 @@
+<div id="booking_actions_<%= booking.id %>">
+  <% if booking.rental_start_time.present? && booking.rental_end_time.blank? %>
+    <!-- Running: show elapsed + countdown + Stop -->
+    <div class="flex items-center gap-4">
+      <!-- Elapsed rental time -->
+      <span data-controller="timer"
+            data-timer-start-time-value="<%= booking.rental_start_time.iso8601 %>"
+            data-timer-target="output"
+            class="font-mono text-green-700">
+        00:00:00
+      </span>
+
+      <!-- Remaining time -->
+      <% if booking.planned_return_at.present? %>
+        <span data-controller="countdown"
+              data-countdown-booking-id-value="<%= booking.id %>"
+              data-countdown-until-value="<%= booking.planned_return_at.iso8601 %>"
+              data-countdown-urgent-threshold-value="<%= 2.hours * 1000 %>"
+              data-countdown-warning-threshold-value="<%= 6.hours * 1000 %>"
+              data-countdown-target="output"
+              class="font-mono text-gray-700">
+          calculating…
+        </span>
+      <% else %>
+        <span class="text-gray-500">No return time set</span>
+      <% end %>
+
+      <% if is_owner %>
+        <%= button_to "Stop Timer",
+                      stop_timer_booking_path(booking),
+                      method: :patch,
+                      data: { turbo_stream: true },
+                      class: "px-3 py-2 bg-red-600 text-white rounded hover:bg-red-500" %>
+      <% end %>
+    </div>
+
+  <% elsif booking.rental_end_time.present? %>
+    <!-- Stopped: show rental summary -->
+    <%= render "bookings/rental_summary", booking: booking, is_owner: is_owner %>
+
+  <% else %>
+    <!-- Idle: show Start -->
+    <% if is_owner %>
+      <%= button_to "Start Timer",
+                    start_timer_booking_path(booking),
+                    method: :patch,
+                    data: { turbo_stream: true },
+                    class: "px-3 py-2 bg-green-600 text-white rounded hover:bg-green-500" %>
+    <% end %>
+  <% end %>
+</div>

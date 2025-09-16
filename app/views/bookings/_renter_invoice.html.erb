@@ -1,0 +1,79 @@
+<div class="p-4 bg-white rounded border space-y-2">
+  <h3 class="font-semibold text-lg">Invoice</h3>
+  <p class="text-gray-600">
+    Issued by <%= booking.car.owner.full_name %>
+    <% if booking.invoice_finalized_at %>
+      on <%= booking.invoice_finalized_at.strftime("%b %d, %Y %I:%M %p") %>
+    <% end %>
+  </p>
+
+  <ul class="space-y-1">
+    <li><strong>Days booked:</strong> <%= booking.planned_days %></li>
+    <li><strong>Total days used:</strong> <%= booking.total_days_used %></li>
+    <li><strong>Extra days:</strong> <%= booking.overtime_days %></li>
+
+    <li><strong>Base rental fee:</strong>
+      KES <%= number_with_precision(booking.base_rental, precision: 2, delimiter: ",") %>
+    </li>
+
+    <% if booking.overtime_days.positive? %>
+      <li><strong>Overtime fee:</strong>
+        KES <%= number_with_precision(booking.overtime_fee, precision: 2, delimiter: ",") %>
+      </li>
+    <% end %>
+
+    <% if booking.car_wash_fee.present? %>
+      <li><strong>Car wash fee:</strong>
+        KES <%= number_with_precision(booking.car_wash_fee, precision: 2, delimiter: ",") %>
+      </li>
+    <% end %>
+
+    <% if booking.damage_fee.present? %>
+      <li><strong>Damage fee:</strong>
+        KES <%= number_with_precision(booking.damage_fee, precision: 2, delimiter: ",") %>
+      </li>
+    <% end %>
+
+    <% if booking.custom_adjustment.present? %>
+      <li><strong>Adjustment:</strong>
+        KES <%= number_with_precision(booking.custom_adjustment, precision: 2, delimiter: ",") %>
+      </li>
+    <% end %>
+
+    <li class="font-bold text-lg">
+      <strong>Total:</strong>
+      KES <%= number_with_precision(booking.calculate_total_price, precision: 2, delimiter: ",") %>
+    </li>
+  </ul>
+
+  <%# === Payment section === %>
+  <% if booking.paid_at.blank? %>
+    <%= form_with url: pay_booking_path(booking), method: :post, local: true do %>
+      <%= hidden_field_tag :payment_type, "full" %>
+
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+        <%= select_tag :country_code, options_for_select([
+              ['🇰🇪 +254 Kenya', '254'],
+              ['🇹🇿 +255 Tanzania', '255'],
+              ['🇺🇬 +256 Uganda', '256'],
+              ['🇷🇼 +250 Rwanda', '250'],
+              ['🇧🇮 +257 Burundi', '257']
+            ], '254'),
+            style: "padding:8px; border:1px solid #ccc; border-radius:4px;" %>
+
+        <%= text_field_tag :phone_number, nil,
+              required: true,
+              placeholder: "7XXXXXXXX",
+              style: "flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;" %>
+      </div>
+      <small style="color:#555; display:block; margin-bottom:8px;">
+        Enter without leading 0. Example: 712345678
+      </small>
+
+      <%= submit_tag "Pay Now",
+            style: "background:#16a34a; color:#fff; padding:10px 16px; border:none; border-radius:6px; font-size:16px; cursor:pointer;" %>
+    <% end %>
+  <% else %>
+    <p class="text-green-700 font-semibold mt-2">Payment received</p>
+  <% end %>
+</div>

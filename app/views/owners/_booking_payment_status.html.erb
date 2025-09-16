@@ -1,0 +1,21 @@
+<%# This partial replaces the owner's payment section live %>
+<div class="p-4 bg-white rounded border space-y-2">
+  <% if booking.pending_deposit? %>
+    <h3 class="font-semibold text-lg">Awaiting Deposit</h3>
+    <p>Renter has not yet paid the deposit.</p>
+
+  <% elsif booking.ready_for_pickup? %>
+    <h3 class="font-semibold text-lg text-green-600">Deposit Received ✅</h3>
+    <p>Deposit has been paid and transferred to your M‑Pesa account.</p>
+    <p>Booking is ready for pickup.</p>
+
+  <% elsif booking.awaiting_final_payment? %>
+    <h3 class="font-semibold text-lg">Awaiting Final Payment</h3>
+    <p>Final invoice sent to renter. Awaiting payment.</p>
+
+  <% elsif booking.completed? %>
+    <h3 class="font-semibold text-lg text-green-600">Final Payment Received ✅</h3>
+    <p>Final payment has been transferred to your M‑Pesa account.</p>
+    <p>Booking is now complete.</p>
+  <% end %>
+</div>
