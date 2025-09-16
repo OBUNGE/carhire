@@ -3,7 +3,7 @@ services:
     name: carhire
     env: ruby
     plan: free
-    region: oregon          # <-- match DB region
+    region: oregon
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
     envVars:
@@ -17,22 +17,7 @@ services:
 databases:
   - name: carhire-db
     plan: free
-    region: oregon         # <-- match web service region
+    region: oregon
     postgresVersion: "16"
     extensions:
       - pg_stat_statements
-    envVars:
-      - key: PGUSER
-        value: carhire
-      - key: PGPASSWORD
-        generate: true  # <-- securely generate a password
-      - key: PGDATABASE
-        value: carhire_production
-      - key: PGHOST
-        fromDatabase:
-          name: carhire-db
-          property: host
-      - key: PGPORT
-        fromDatabase:
-          name: carhire-db
-          property: port    
