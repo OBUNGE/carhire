@@ -8,7 +8,7 @@ services:
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: carhire-db
+          name: carhire-db   # must match your DB service name exactly
           property: connectionString
       - key: RAILS_MASTER_KEY
         sync: false
@@ -16,4 +16,3 @@ services:
 databases:
   - name: carhire-db
     plan: free
-
