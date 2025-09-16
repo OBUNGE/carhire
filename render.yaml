@@ -3,6 +3,7 @@ services:
     name: carhire
     env: ruby
     plan: free
+    region: oregon          # <-- match DB region
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
     envVars:
@@ -16,3 +17,4 @@ services:
 databases:
   - name: carhire-db
     plan: free
+    region: oregon          # <-- match web service region
