@@ -18,6 +18,3 @@ databases:
   - name: carhire-db
     plan: free
     region: oregon
-    postgresVersion: "16"
-    extensions:
-      - pg_stat_statements
