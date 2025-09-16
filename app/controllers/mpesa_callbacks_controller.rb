@@ -1,18 +1,23 @@
 class MpesaCallbacksController < ApplicationController
-  # Skip CSRF and authentication for Safaricom callbacks, but don't raise if they aren't defined
   skip_before_action :verify_authenticity_token, raise: false
   skip_before_action :authenticate_user!, raise: false
 
   # === B2C payout result ===
   def result_callback
-    Rails.logger.info "✅ B2C result callback received: #{request.body.read}"
+    raw_body = request.body.read
+    Rails.logger.info "✅ B2C result callback received: #{raw_body}"
 
     result  = params[:Result] || {}
-    amount  = result.dig("ResultParameters", "ResultParameter")&.find { |p| p["Key"] == "TransactionAmount" }&.dig("Value")
-    receipt = result.dig("ResultParameters", "ResultParameter")&.find { |p| p["Key"] == "TransactionReceipt" }&.dig("Value")
+    amount  = result.dig("ResultParameters", "ResultParameter")
+                    &.find { |p| p["Key"] == "TransactionAmount" }&.dig("Value")
+    receipt = result.dig("ResultParameters", "ResultParameter")
+                    &.find { |p| p["Key"] == "TransactionReceipt" }&.dig("Value")
 
-    # If you can link this payout to a booking:
-    booking = Booking.find_by(id: 71) # TODO: match via stored payout reference
+    # Match booking via Occasion (set in MpesaService.b2c_payout)
+    occasion    = result.dig("ResultParameters", "ResultParameter")
+                        &.find { |p| p["Key"] == "Occasion" }&.dig("Value")
+    booking_id  = occasion.to_s.remove("Booking").to_i
+    booking     = Booking.find_by(id: booking_id)
 
     if booking
       PaymentMailer.with(
@@ -20,6 +25,8 @@ class MpesaCallbacksController < ApplicationController
         amount: amount,
         receipt: receipt
       ).owner_payout_email.deliver_later
+    else
+      Rails.logger.warn "⚠️ B2C result callback could not match booking. Occasion: #{occasion.inspect}"
     end
 
     head :ok
@@ -33,7 +40,7 @@ class MpesaCallbacksController < ApplicationController
 
   # === Unified STK Push callback (deposit or final)
   def payment_callback
-    process_payment # no stage passed — auto‑detect will handle it
+    process_payment
   end
 
   private
@@ -49,7 +56,11 @@ class MpesaCallbacksController < ApplicationController
 
     booking_id = extract_booking_id(data)
     booking    = Booking.find_by(id: booking_id)
-    return head(:not_found) unless booking
+
+    unless booking
+      Rails.logger.warn "⚠️ Payment callback received but booking not found. Data: #{data.inspect}"
+      return head(:ok) # Prevent Safaricom retries
+    end
 
     # Auto‑detect stage if not explicitly given
     if stage.nil?
@@ -73,7 +84,7 @@ class MpesaCallbacksController < ApplicationController
           deposit_transaction_id: receipt,
           status: :ready_for_pickup
         )
-        payout_owner(booking, amount) # send deposit payout immediately
+        payout_owner(booking, amount)
 
       elsif stage == :final
         if booking.start_time.present? && booking.start_time.future?
@@ -89,7 +100,7 @@ class MpesaCallbacksController < ApplicationController
             status: :completed
           )
         end
-        payout_owner(booking, amount) # send final payment payout immediately
+        payout_owner(booking, amount)
       end
 
       broadcast_updates(booking, stage)
@@ -97,7 +108,7 @@ class MpesaCallbacksController < ApplicationController
 
       Rails.logger.info "✅ #{stage.to_s.capitalize} payment processed for Booking ##{booking.id}"
     else
-      Rails.logger.warn "⚠️ Payment failed for Booking ##{booking_id}"
+      Rails.logger.warn "⚠️ Payment failed for Booking ##{booking.id}"
     end
 
     head :ok
@@ -105,10 +116,8 @@ class MpesaCallbacksController < ApplicationController
 
   def payout_owner(booking, amount)
     response = MpesaService.new.b2c_payout(booking, amount)
-
-    # Extract only the receipt string to avoid serialization errors
-    receipt = response.parsed_response.dig("Result", "ResultParameters", "ResultParameter")
-                      &.find { |p| p["Key"] == "TransactionReceipt" }&.dig("Value")
+    receipt  = response.parsed_response.dig("Result", "ResultParameters", "ResultParameter")
+                        &.find { |p| p["Key"] == "TransactionReceipt" }&.dig("Value")
 
     PaymentMailer.with(
       booking: booking,
@@ -118,7 +127,6 @@ class MpesaCallbacksController < ApplicationController
   end
 
   def broadcast_updates(booking, stage)
-    # Update renter's view
     Turbo::StreamsChannel.broadcast_replace_to(
       booking.renter,
       target: "booking_actions_#{booking.id}",
@@ -126,7 +134,6 @@ class MpesaCallbacksController < ApplicationController
       locals: { booking: booking, is_owner: false }
     )
 
-    # Update owner's view
     Turbo::StreamsChannel.broadcast_replace_to(
       booking.owner,
       target: "booking_actions_#{booking.id}",
@@ -142,9 +149,17 @@ class MpesaCallbacksController < ApplicationController
 
   # === Helpers to extract data from M‑Pesa payload ===
   def extract_booking_id(data)
+    # Try AccountReference first
     ref = data.dig("Body", "stkCallback", "CallbackMetadata", "Item")
              &.find { |i| i["Name"] == "AccountReference" }&.dig("Value")
-    ref.to_s.remove("Booking").to_i
+    return ref.to_s.remove("Booking").to_i if ref.present?
+
+    # Fallback to MerchantRequestID / CheckoutRequestID
+    merchant_id = data.dig("Body", "stkCallback", "MerchantRequestID")
+    checkout_id = data.dig("Body", "stkCallback", "CheckoutRequestID")
+
+    Booking.find_by(merchant_request_id: merchant_id)&.id ||
+      Booking.find_by(checkout_request_id: checkout_id)&.id
   end
 
   def extract_transaction_id(data)

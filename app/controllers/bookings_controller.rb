@@ -220,7 +220,6 @@ def reject
   end
 end
 
-
 def pay
   @booking = current_user.bookings.find(params[:id])
 
@@ -249,17 +248,24 @@ def pay
     amount = @booking.final_amount.to_f
     @booking.update!(status: :awaiting_final_payment)
     callback_url = "#{ENV.fetch('APP_URL')}/mpesa/final_callback"
+
   else
     redirect_to renter_dashboard_path, alert: "Invalid payment type" and return
   end
 
-  # ✅ Call with keyword arguments
-  MpesaService.new.stk_push(
+  # Call STK Push and capture response
+  response = MpesaService.new.stk_push(
     booking: @booking,
     amount: amount,
     phone_number: phone_number,
     account_reference: "Booking#{@booking.id}",
     callback_url: callback_url
+  )
+
+  # Store IDs for callback matching fallback
+  @booking.update!(
+    merchant_request_id: response["MerchantRequestID"],
+    checkout_request_id: response["CheckoutRequestID"]
   )
 
   redirect_to renter_dashboard_path, notice: "#{payment_type.capitalize} payment request sent to #{phone_number}. Please check your phone."
