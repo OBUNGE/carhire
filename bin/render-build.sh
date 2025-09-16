@@ -10,8 +10,7 @@ corepack prepare yarn@stable --activate
 bundle install
 
 # --- Install JS dependencies ---
-yarn install --check-files
-
+yarn install
 # --- Build assets ---
 bundle exec rake assets:precompile
 bundle exec rake assets:clean
