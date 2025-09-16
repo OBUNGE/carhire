@@ -1,17 +1,24 @@
-# Exported from Render on 2025-09-16T13:54:28Z
 services:
-- type: web
-  name: carhire
-  runtime: ruby
-  repo: https://github.com/OBUNGE/carhire
-  plan: free
-  envVars:
-  - key: RAILS_MASTER_KEY
-    sync: false
-  - key: DATABASE_URL
-    sync: false
-  region: oregon
-  buildCommand: ./bin/render-build.sh
-  startCommand: bundle exec puma -C config/puma.rb
-  autoDeployTrigger: commit
+  - type: web
+    name: carhire
+    runtime: ruby
+    repo: https://github.com/OBUNGE/carhire
+    plan: free
+    envVars:
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: carhire-db          # must match your DB service name exactly
+          property: connectionString
+    region: oregon
+    buildCommand: ./bin/render-build.sh
+    startCommand: bundle exec puma -C config/puma.rb
+    autoDeployTrigger: commit
+
+databases:
+  - name: carhire-db
+    plan: free
+    region: oregon
+
 version: "1"
