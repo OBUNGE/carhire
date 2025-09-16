@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 set -o errexit
 
-# --- Ensure Yarn is available ---
-# Corepack comes with Node.js >= 16 and manages Yarn versions
+# Enable Yarn via Corepack (Yarn 4+)
 corepack enable
 corepack prepare yarn@stable --activate
 
-# --- Install Ruby gems ---
+# Install Ruby gems
 bundle install
 
-# --- Install JS dependencies ---
+# Install JS dependencies
 yarn install
-# --- Build assets ---
+
+# Build assets
 bundle exec rake assets:precompile
 bundle exec rake assets:clean
 
-# --- Run database migrations ---
+# Run database migrations
 bundle exec rake db:migrate

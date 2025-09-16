@@ -72,13 +72,15 @@
     <div style="margin-bottom:20px;">
       <a id="google-signup-btn"
          href="#"
-         style="display:inline-block; width:100%; text-align:center; background:#dc2626; color:#fff; font-weight:bold; font-size:18px; padding:12px; border-radius:6px; text-decoration:none; cursor:pointer;">
+         style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; background:#fff; color:#444; font-weight:500; font-size:18px; padding:12px; border:1px solid #ccc; border-radius:6px; text-decoration:none; cursor:pointer;" do %>
+        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png" alt="Google" style="width:20px; height:20px;">
          Sign up with Google
       </a>
     </div>
 
     <!-- Bottom Links -->
     <div style="text-align:center; font-size:16px;">
+      Already have an account?
       <%= link_to "Log in", new_session_path(resource_name), style: "color:#2563eb; text-decoration:none;" %>
     </div>
   </div>

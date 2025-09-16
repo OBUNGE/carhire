@@ -86,9 +86,6 @@ production:
   primary: &primary_production
     <<: *default
     url: <%= ENV['DATABASE_URL'] %>
-    database: carhire_production
-    username: carhire
-    password: <%= ENV["CARHIRE_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
     database: carhire_production_cache
