@@ -5,6 +5,7 @@ body {
   padding: 0;
   background: #f9fafb;
   color: #333;
+  line-height: 1.6;
 }
 
 .site-header {
