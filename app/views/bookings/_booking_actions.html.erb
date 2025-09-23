@@ -1,12 +1,14 @@
-<div id="booking_actions_<%= booking.id %>" class="booking-actions">
+<div id="booking_actions_<%= booking.id %>">
   <% if booking.rental_start_time.present? && booking.rental_end_time.blank? %>
     <!-- Running: show elapsed + countdown + Stop -->
-    <div class="booking-running">
+    <div class="flex items-center gap-4">
       <!-- Elapsed rental time -->
       <span data-controller="timer"
             data-timer-start-time-value="<%= booking.rental_start_time.iso8601 %>"
             data-timer-target="output"
-            class="timer-elapsed">00:00:00</span>
+            class="font-mono text-green-700">
+        00:00:00
+      </span>
 
       <!-- Remaining time -->
       <% if booking.planned_return_at.present? %>
@@ -16,17 +18,19 @@
               data-countdown-urgent-threshold-value="<%= 2.hours * 1000 %>"
               data-countdown-warning-threshold-value="<%= 6.hours * 1000 %>"
               data-countdown-target="output"
-              class="timer-remaining">calculating…</span>
+              class="font-mono text-gray-700">
+          calculating…
+        </span>
       <% else %>
-        <span class="timer-no-return">No return time set</span>
+        <span class="text-gray-500">No return time set</span>
       <% end %>
 
       <% if is_owner %>
-        <%= button_to "End rental",
+        <%= button_to "Stop Timer",
                       stop_timer_booking_path(booking),
                       method: :patch,
                       data: { turbo_stream: true },
-                      class: "btn btn-danger" %>
+                      class: "px-3 py-2 bg-red-600 text-white rounded hover:bg-red-500" %>
       <% end %>
     </div>
 
@@ -37,62 +41,11 @@
   <% else %>
     <!-- Idle: show Start -->
     <% if is_owner %>
-      <%= button_to "Start rental",
+      <%= button_to "Start Timer",
                     start_timer_booking_path(booking),
                     method: :patch,
                     data: { turbo_stream: true },
-                    class: "btn btn-success" %>
+                    class: "px-3 py-2 bg-green-600 text-white rounded hover:bg-green-500" %>
     <% end %>
   <% end %>
 </div>
-
-<style>
-/* Booking actions styles */
-.booking-running {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.timer-elapsed {
-  font-family: monospace;
-  color: #047857; /* green-700 */
-  font-weight: bold;
-}
-
-.timer-remaining {
-  font-family: monospace;
-  color: #374151; /* gray-700 */
-}
-
-.timer-no-return {
-  color: #6b7280; /* gray-500 */
-  font-style: italic;
-}
-
-.btn {
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-}
-
-.btn-success {
-  background: #16a34a;
-  color: #fff;
-}
-.btn-success:hover {
-  background: #15803d;
-}
-
-.btn-danger {
-  background: #dc2626;
-  color: #fff;
-}
-.btn-danger:hover {
-  background: #b91c1c;
-}
-
-</style>
-<%# End of booking actions styles %>
