@@ -8,161 +8,240 @@
        "Good evening"
      end %>
 
-<div style="background:#2563eb; color:white; padding:16px 24px; border-radius:8px; margin-bottom:20px;">
-  <h1 style="margin:0; font-size:24px; font-weight:700;">
-    <%= "#{greeting}, #{current_user.full_name}!" %>
-  </h1>
-  <p style="margin:4px 0 0; font-size:14px; opacity:0.9;">
-    Welcome back to your dashboard. Let’s get things moving.
-  </p>
+<!-- Greeting -->
+<div class="dashboard-greeting">
+  <h1><%= "#{greeting}, #{current_user.full_name}!" %></h1>
+  <p>Welcome back to your dashboard. Let’s get things moving.</p>
 </div>
 
+<!-- Dashboard Heading -->
+<h1 class="dashboard-heading">Your Car Dashboard</h1>
 
-  <!-- Dashboard Heading -->
-  <h1 style="font-size: 30px; font-weight: bold; text-align: center; margin-bottom: 30px; color:#1e3a8a;">
-    Your Car Dashboard
-  </h1>
-
-  <!-- Quick Actions -->
-  <div style="margin-bottom: 30px; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
-    <h2 style="font-size: 22px; font-weight: bold; margin-bottom: 20px; color:#1e3a8a;">Quick Actions</h2>
-    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-      <%= link_to "List a New Car", new_car_path, style: "padding: 12px 18px; background: #2563eb; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 500; flex:1; text-align:center;" %>
-      <%= link_to "View All Cars", cars_path, style: "padding: 12px 18px; background: #1d4ed8; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 500; flex:1; text-align:center;" %>
-      <%= link_to "Edit Profile", edit_user_registration_path, style: "padding: 12px 18px; background: #3b82f6; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 500; flex:1; text-align:center;" %>
-    </div>
+<!-- Quick Actions -->
+<div class="quick-actions">
+  <h2>Quick Actions</h2>
+  <div class="quick-actions-buttons">
+    <%= link_to "List a New Car", new_car_path, class: "btn btn-primary" %>
+    <%= link_to "View All Cars", cars_path, class: "btn btn-secondary" %>
+    <%= link_to "Edit Profile", edit_user_registration_path, class: "btn btn-tertiary" %>
   </div>
+</div>
 
-  <!-- Car Stats -->
-  <div style="margin-bottom: 30px; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-align:center;">
-    <h2 style="font-size: 22px; font-weight: bold; margin-bottom: 20px; color:#1e3a8a;">Your Car Stats</h2>
-    <p style="font-size:16px; margin-bottom:8px;"><strong>Total Cars Listed:</strong> <%= @total_cars %></p>
-    <p style="font-size:16px;"><strong>Average Price:</strong> KES <%= @average_price.present? ? number_with_precision(@average_price, precision: 2) : "N/A" %></p>
+<!-- Car Stats -->
+<div class="car-stats">
+  <h2>Your Car Stats</h2>
+  <p><strong>Total Cars Listed:</strong> <%= @total_cars %></p>
+  <p><strong>Average Price:</strong> KES <%= @average_price.present? ? number_with_precision(@average_price, precision: 2) : "N/A" %></p>
+</div>
+
+<!-- Car Listings -->
+<% if @cars.any? %>
+  <ul class="car-listings">
+    <% @cars.each do |car| %>
+      <li class="car-card">
+        <h2>
+          <%= car.name.presence || "#{car.make || 'Unknown Make'} #{car.model || 'Unknown Model'}" %>
+          (<%= car.year.presence || "Year N/A" %>)
+        </h2>
+
+        <!-- Status Badge -->
+        <% if car.status == "published" %>
+          <span class="badge badge-published">Published</span>
+        <% elsif car.status == "draft" %>
+          <span class="badge badge-draft">Draft</span>
+        <% elsif car.status == "sold" %>
+          <span class="badge badge-sold">Sold</span>
+        <% end %>
+
+        <p><strong>Price:</strong>
+          <% if car.for_rent? %>
+            <span class="price">KES <%= number_to_currency(car.price, unit: '') %> per day</span>
+          <% elsif car.for_sale? %>
+            <span class="price">KES <%= number_to_currency(car.price, unit: '') %> total</span>
+          <% else %>
+            Not listed
+          <% end %>
+        </p>
+
+        <p><strong>Current Listing Type:</strong>
+          <span class="listing-type"><%= car.listing_type.present? ? car.listing_type.titleize : "Not specified" %></span>
+        </p>
+
+        <!-- Update Form -->
+        <div class="update-form">
+          <%= form_with model: car, url: car_path(car), method: :patch, local: true do |f| %>
+            <%= f.label :listing_type, "Change Listing Type" %>
+            <%= f.select :listing_type, Car::LISTING_TYPES.map { |type| [type.titleize, type] }, {}, class: "form-select" %>
+            <%= f.submit "Update", class: "btn btn-primary" %>
+          <% end %>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="car-actions">
+          <%= link_to "View", car_path(car), class: "btn btn-light" %>
+          <%= link_to "Edit", edit_car_path(car), class: "btn btn-light" %>
+          <%= button_to "Delete", car_path(car), method: :delete, data: { turbo_confirm: "Are you sure?" }, local: true, class: "btn btn-danger" %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="no-cars">You haven’t listed any cars yet.</p>
+  <div class="center">
+    <%= link_to "List a New Car", new_car_path, class: "btn btn-primary" %>
   </div>
-
-  <!-- Car Listings -->
-
-
-  <% if @cars.any? %>
-    <ul style="list-style: none; padding: 0; margin: 0; display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
-      <% @cars.each do |car| %>
-        <li style="border: 1px solid #e5e7eb; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-          <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px; color:#1e3a8a;">
-            <%= car.name.presence || "#{car.make || 'Unknown Make'} #{car.model || 'Unknown Model'}" %> 
-            (<%= car.year.presence || "Year N/A" %>)
-          </h2>
-          <!-- Status Badge -->
-          <% if car.status == "published" %>
-  <span style="background:#e6ffed; color:#065f46; font-size:12px; padding:4px 8px; border-radius:4px; font-weight:600; display:inline-block; margin-bottom:6px;">
-    Published
-  </span>
-<% elsif car.status == "draft" %>
-  <span style="background:#fef2f2; color:#991b1b; font-size:12px; padding:4px 8px; border-radius:4px; font-weight:600; display:inline-block; margin-bottom:6px;">
-    Draft
-  </span>
-<% elsif car.status == "sold" %>
-  <span style="background:#fefce8; color:#92400e; font-size:12px; padding:4px 8px; border-radius:4px; font-weight:600; display:inline-block; margin-bottom:6px;">
-    Sold
-  </span>
 <% end %>
 
-
-          <p style="margin-bottom: 10px; font-size:15px;">
-            <strong>Price:</strong>
-            <% if car.for_rent? %>
-              <span style="color:#2563eb;">KES <%= number_to_currency(car.price, unit: '') %> per day</span>
-            <% elsif car.for_sale? %>
-              <span style="color:#2563eb;">KES <%= number_to_currency(car.price, unit: '') %> total</span>
-            <% else %>
-              Not listed
-            <% end %>
-          </p>
-
-          <p style="margin-bottom: 10px; font-size:15px;">
-            <strong>Current Listing Type:</strong>
-            <span style="color:#1d4ed8;"><%= car.listing_type.present? ? car.listing_type.titleize : "Not specified" %></span>
-          </p>
-
-          <!-- Update Form -->
-          <div style="margin-top: 15px;">
-            <%= form_with model: car, url: car_path(car), method: :patch, local: true do |f| %>
-              <%= f.label :listing_type, "Change Listing Type", style: "display: block; font-weight: bold; margin-bottom: 6px; color:#1e3a8a;" %>
-              <%= f.select :listing_type, Car::LISTING_TYPES.map { |type| [type.titleize, type] }, {}, style: "padding: 8px; width: 100%; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 6px; font-size:15px;" %>
-              <%= f.submit "Update", style: "padding: 10px 16px; background: #2563eb; color: #fff; border-radius: 6px; border: none; cursor: pointer; font-weight:500;" %>
-            <% end %>
-          </div>
-
-          <!-- Action Buttons -->
-          <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-            <%= link_to "View", car_path(car), style: "flex:1; text-align:center; padding: 10px 14px; background: #dbeafe; border-radius: 6px; text-decoration: none; color: #1e40af; font-weight:500;" %>
-            <%= link_to "Edit", edit_car_path(car), style: "flex:1; text-align:center; padding: 10px 14px; background: #f3f4f6; border-radius: 6px; text-decoration: none; color: #374151; font-weight:500;" %>
-            <%= button_to "Delete", car_path(car), method: :delete, data: { turbo_confirm: "Are you sure?" }, local: true, style: "flex:1; text-align:center; padding: 10px 14px; background: #dc2626; border-radius: 6px; color: #fff; border: none; cursor: pointer; font-weight:500;" %>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p style="color: #6b7280; font-size:16px; text-align:center; margin-bottom:10px;">You haven’t listed any cars yet.</p>
-    <div style="text-align:center;">
-      <%= link_to "List a New Car", new_car_path, style: "padding: 12px 18px; background: #2563eb; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 500;" %>
-    </div>
-  <% end %>
-</div>
 <!-- Purchase Management -->
 <%= render "bookings/purchase_management" %>
 
-<!-- Booking Management -->
-<div style="margin-top:48px;">
-  <h2 style="font-size:22px;font-weight:bold;margin-bottom:16px;">Bookings for Your Cars</h2>
+<% @owner_bookings.each do |booking| %>
+  <%= render "bookings/booking_management", booking: booking %>
+<% end %>
 
-  <% if @owner_bookings.any? %>
-    <div style="display:flex;flex-direction:column;gap:20px;">
-      <% @owner_bookings.each do |booking| %>
-        <div style="border:1px solid #ddd;padding:20px;border-radius:12px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
-          <h3 style="font-size:18px;font-weight:600;margin-bottom:10px;">
-            Booking for <%= booking.car.name %>
-          </h3>
+<style>
 
-          <p><strong>Renter Name:</strong> <%= booking.renter.full_name.presence || "Not provided" %></p>
-          <p><strong>Renter Email:</strong> <%= booking.renter.email %></p>
-          <p><strong>Renter Phone:</strong> <%= booking.renter.phone_number %></p>
+/* booking owber dashboard style */
 
-          <p><strong>Start Date & Time:</strong>
-            <%= booking.start_time&.strftime("%b %d, %Y %I:%M %p") || "Not set" %>
-          </p>
+/* Greeting */
+.dashboard-greeting {
+  background: #2563eb;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.dashboard-greeting h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+.dashboard-greeting p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
 
-          <p><strong>Planned Return:</strong>
-            <%= booking.planned_return_at&.strftime("%b %d, %Y %I:%M %p") || "Not set" %>
-          </p>
+/* Headings */
+.dashboard-heading {
+  font-size: 30px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #1e3a8a;
+}
 
-          <p><strong>ID Number:</strong> <%= booking.id_number || "Not provided" %></p>
-          <p><strong>Purpose:</strong> <%= booking.purpose %></p>
-          <p><strong>Nationality:</strong> <%= booking.nationality %></p>
-          <p><strong>Delivery Method:</strong> <%= booking.delivery_method %></p>
-          <p><strong>Pickup Location:</strong> <%= booking.pickup_location || "Not provided" %></p>
-          <p><strong>Has Driver?:</strong> <%= booking.has_driver? ? "Yes" : "No" %></p>
+/* Quick Actions */
+.quick-actions {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+.quick-actions h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #1e3a8a;
+}
+.quick-actions-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
-          <!-- Live Payment Status for Owner -->
-          <div id="booking_payment_<%= booking.id %>" style="margin-top:12px;">
-            <%= render "owners/booking_payment_status", booking: booking %>
-          </div>
+/* Car Stats */
+.car-stats {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  text-align: center;
+}
+.car-stats h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #1e3a8a;
+}
 
-          <!-- Status -->
-          <%= render "bookings/status", booking: booking %>
+/* Car Listings */
+.car-listings {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.car-card {
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.car-card h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #1e3a8a;
+}
 
-          <!-- Actions -->
-          <div id="booking_actions_<%= booking.id %>" style="margin-top:12px;display:flex;gap:12px;">
-            <%= render "bookings/booking_actions", booking: booking, is_owner: (booking.car.owner == current_user) %>
+/* Status Badges */
+.badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+.badge-published { background: #e6ffed; color: #065f46; }
+.badge-draft { background: #fef2f2; color: #991b1b; }
+.badge-sold { background: #fefce8; color: #92400e; }
 
-            <% if booking.pending_deposit? %>
-              <%= button_to "Approve", approve_booking_path(booking), method: :patch, data: { turbo_stream: true }, style: "padding:8px 14px;background:#16a34a;color:#fff;border:none;border-radius:6px;cursor:pointer;" %>
-              <%= button_to "Reject", reject_booking_path(booking), method: :patch, data: { turbo_stream: true }, style: "padding:8px 14px;background:#dc2626;color:#fff;border:none;border-radius:6px;cursor:pointer;" %>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  <% else %>
-    <p style="color:#6b7280;">No bookings for your cars yet.</p>
-  <% end %>
-</div>
+/* Buttons */
+.btn {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+}
+.btn-primary { background: #2563eb; color: #fff; }
+.btn-secondary { background: #1d4ed8; color: #fff; }
+.btn-tertiary { background: #3b82f6; color: #fff; }
+.btn-light { background: #f3f4f6; color: #374151; }
+.btn-danger { background: #dc2626; color: #fff; }
+
+/* Forms */
+.update-form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #1e3a8a;
+}
+.form-select {
+  padding: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+/* Misc */
+.no-cars {
+  color: #6b7280;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.center { text-align: center; }
+</style>
+<%# End of booking owner dashboard style %>
