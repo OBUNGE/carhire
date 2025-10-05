@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_11_085329) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_21_085944) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -86,6 +86,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_11_085329) do
     t.string "mpesa_receipt_number"
     t.datetime "final_paid_at"
     t.string "final_receipt_number"
+    t.string "merchant_request_id"
+    t.string "checkout_request_id"
     t.index ["car_id"], name: "index_bookings_on_car_id"
     t.index ["user_id"], name: "index_bookings_on_user_id"
   end

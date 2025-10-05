@@ -182,8 +182,6 @@ def approve
   end
 end
 
-
-
 def reject
   # Ensure only the owner can reject
   unless @booking.car.owner == current_user
@@ -220,6 +218,7 @@ def reject
   end
 end
 
+
 def pay
   @booking = current_user.bookings.find(params[:id])
 
@@ -233,7 +232,8 @@ def pay
 
   # Validate format for Kenyan Safaricom numbers
   unless phone_number.match?(/^2547\d{8}$/)
-    redirect_to renter_dashboard_path, alert: "Please enter a valid Safaricom number in the format 7XXXXXXXX" and return
+    redirect_to renter_dashboard_path,
+                alert: "Please enter a valid Safaricom number in the format 7XXXXXXXX" and return
   end
 
   payment_type = params[:payment_type]
@@ -242,23 +242,26 @@ def pay
   when "deposit"
     amount = @booking.deposit_amount.to_f
     @booking.update!(status: :pending_deposit)
-    callback_url = "#{ENV.fetch('APP_URL')}/mpesa/deposit_callback"
+    account_reference = "Booking#{@booking.id}-Deposit"
 
   when "final"
     amount = @booking.final_amount.to_f
     @booking.update!(status: :awaiting_final_payment)
-    callback_url = "#{ENV.fetch('APP_URL')}/mpesa/final_callback"
+    account_reference = "Booking#{@booking.id}-Final"
 
   else
     redirect_to renter_dashboard_path, alert: "Invalid payment type" and return
   end
+
+  # Always use ONE callback URL (as required by Safaricom)
+  callback_url = "#{ENV.fetch('APP_URL')}/payment/stk_callback"
 
   # Call STK Push and capture response
   response = MpesaService.new.stk_push(
     booking: @booking,
     amount: amount,
     phone_number: phone_number,
-    account_reference: "Booking#{@booking.id}",
+    account_reference: account_reference,
     callback_url: callback_url
   )
 
@@ -268,10 +271,9 @@ def pay
     checkout_request_id: response["CheckoutRequestID"]
   )
 
-  redirect_to renter_dashboard_path, notice: "#{payment_type.capitalize} payment request sent to #{phone_number}. Please check your phone."
+  redirect_to renter_dashboard_path,
+              notice: "#{payment_type.capitalize} payment request sent to #{phone_number}. Please check your phone."
 end
-
-
 
 
 def update_invoice
@@ -302,6 +304,7 @@ def update_invoice
     end
   end
 end
+
 
 def finalize_invoice
   @booking = current_user.owned_bookings.find(params[:id])

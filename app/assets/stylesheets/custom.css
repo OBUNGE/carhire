@@ -368,6 +368,268 @@ body {
   background: #fefce8;
   color: #92400e;
 }
+ 
+/* booking managemnt */
 
+.bookings-section {
+  margin-top: 3rem;
+}
 
+.bookings-section h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
 
+.bookings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.booking-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.booking-header h3 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.status {
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Status colors */
+.status.pending_deposit { background: #fff3cd; color: #856404; }
+.status.ready_for_pickup { background: #d4edda; color: #155724; }
+.status.completed { background: #e2e3e5; color: #383d41; }
+.status.rejected { background: #f8d7da; color: #721c24; }
+
+.booking-info, .booking-details {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.booking-info p, .booking-details p {
+  margin: 0.3rem 0;
+}
+
+.booking-payment {
+  margin: 1rem 0;
+}
+
+.booking-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-approve {
+  background: #28a745;
+  color: #fff;
+}
+
+.btn-approve:hover {
+  background: #218838;
+}
+
+.btn-reject {
+  background: #dc3545;
+  color: #fff;
+}
+
+.btn-reject:hover {
+  background: #c82333;
+}
+
+.no-bookings {
+  color: #666;
+  font-style: italic;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .booking-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .booking-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* booking owber dashboard style */
+
+/* Greeting */
+.dashboard-greeting {
+  background: #2563eb;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.dashboard-greeting h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+.dashboard-greeting p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Headings */
+.dashboard-heading {
+  font-size: 30px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #1e3a8a;
+}
+
+/* Quick Actions */
+.quick-actions {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+.quick-actions h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #1e3a8a;
+}
+.quick-actions-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Car Stats */
+.car-stats {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  text-align: center;
+}
+.car-stats h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #1e3a8a;
+}
+
+/* Car Listings */
+.car-listings {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.car-card {
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.car-card h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #1e3a8a;
+}
+
+/* Status Badges */
+.badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+.badge-published { background: #e6ffed; color: #065f46; }
+.badge-draft { background: #fef2f2; color: #991b1b; }
+.badge-sold { background: #fefce8; color: #92400e; }
+
+/* Buttons */
+.btn {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+}
+.btn-primary { background: #2563eb; color: #fff; }
+.btn-secondary { background: #1d4ed8; color: #fff; }
+.btn-tertiary { background: #3b82f6; color: #fff; }
+.btn-light { background: #f3f4f6; color: #374151; }
+.btn-danger { background: #dc2626; color: #fff; }
+
+/* Forms */
+.update-form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #1e3a8a;
+}
+.form-select {
+  padding: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+/* Misc */
+.no-cars {
+  color: #6b7280;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.center { text-align: center; }

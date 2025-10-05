@@ -10,11 +10,12 @@ class MpesaService
     @passkey         = ENV.fetch('MPESA_PASSKEY')
     @consumer_key    = ENV.fetch('MPESA_CONSUMER_KEY')
     @consumer_secret = ENV.fetch('MPESA_CONSUMER_SECRET')
-    @callback_url    = "#{ENV.fetch('APP_URL')}/mpesa/payment_callback"
+    # ✅ Unified callback for both deposit & final
+    @callback_url    = "#{ENV.fetch('APP_URL')}/payment/stk_callback"
     @token           = fetch_access_token
   end
 
-  # === CUSTOMER PAYMENT ===
+  # === CUSTOMER PAYMENT (STK Push) ===
   def stk_push(booking:, amount:, phone_number:, account_reference: nil, callback_url: nil)
     sanitized_phone = sanitize_phone(phone_number)
     timestamp = Time.now.strftime('%Y%m%d%H%M%S')
@@ -45,8 +46,7 @@ class MpesaService
     response
   end
 
-  # === OWNER PAYOUT ===
-  # Now accepts amount from controller to match MpesaCallbacksController#payout_owner
+  # === OWNER PAYOUT (B2C) ===
   def b2c_payout(booking, amount)
     phone = sanitize_phone(booking.car.owner.phone_number)
 
@@ -58,8 +58,8 @@ class MpesaService
       PartyA: @shortcode,
       PartyB: phone,
       Remarks: "Owner payout for Booking#{booking.id}",
-      QueueTimeOutURL: "#{ENV.fetch('APP_URL')}/mpesa/timeout_callback",
-      ResultURL: "#{ENV.fetch('APP_URL')}/mpesa/result_callback",
+      QueueTimeOutURL: "#{ENV.fetch('APP_URL')}/payment/timeout_callback",
+      ResultURL: "#{ENV.fetch('APP_URL')}/payment/result_callback",
       Occasion: "Booking#{booking.id}"
     }
 
@@ -88,8 +88,8 @@ class MpesaService
       Amount: amount,
       ReceiverParty: @shortcode,
       ReceiverIdentifierType: "4",
-      ResultURL: "#{ENV.fetch('APP_URL')}/mpesa/refund_result_callback",
-      QueueTimeOutURL: "#{ENV.fetch('APP_URL')}/mpesa/refund_timeout_callback",
+      ResultURL: "#{ENV.fetch('APP_URL')}/payment/refund_result_callback",
+      QueueTimeOutURL: "#{ENV.fetch('APP_URL')}/payment/refund_timeout_callback",
       Remarks: "Refund for Booking#{booking.id}",
       Occasion: "Booking#{booking.id}"
     }

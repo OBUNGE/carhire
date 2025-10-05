@@ -33,21 +33,18 @@ Rails.application.routes.draw do
   root "pages#landing"
 
   # =========================
-  # M‑Pesa callbacks
+  # Payment callbacks (Daraja)
   # =========================
-  # STK Push callbacks (deposit & final)
-  post "/mpesa/deposit_callback",        to: "mpesa_callbacks#payment_callback"
-  post "/mpesa/final_payment_callback",  to: "mpesa_callbacks#payment_callback"
+  # STK Push (deposit + final handled via AccountReference)
+  post "/payment/stk_callback",     to: "mpesa_callbacks#payment_callback"
 
   # B2C payout callbacks
-  post "/mpesa/result_callback",         to: "mpesa_callbacks#result_callback"
-  post "/mpesa/timeout_callback",        to: "mpesa_callbacks#timeout_callback"
+  post "/payment/result_callback",  to: "mpesa_callbacks#result_callback"
+  post "/payment/timeout_callback", to: "mpesa_callbacks#timeout_callback"
 
-  # Sandbox-friendly aliases (optional for testing)
-  post "/payment/deposit_callback",      to: "mpesa_callbacks#payment_callback"
-  post "/payment/final_payment_callback",to: "mpesa_callbacks#payment_callback"
-  post "/payment/result_callback",       to: "mpesa_callbacks#result_callback"
-  post "/payment/timeout_callback",      to: "mpesa_callbacks#timeout_callback"
+  # Refund callbacks (if you’re supporting refunds)
+  post "/payment/refund_result_callback",  to: "mpesa_callbacks#refund_result_callback"
+  post "/payment/refund_timeout_callback", to: "mpesa_callbacks#refund_timeout_callback"
 
   # =========================
   # Cars

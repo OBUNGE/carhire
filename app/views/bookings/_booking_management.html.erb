@@ -1,46 +1,205 @@
-<div class="mt-12">
-  <h2 class="text-2xl font-bold mb-4">Bookings for Your Cars</h2>
-  <% if owner_bookings.any? %>
-    <div class="space-y-6">
-      <% owner_bookings.each do |booking| %>
-        <div class="border p-4 rounded bg-white shadow">
-          <h3 class="text-lg font-semibold mb-2">Booking for <%= booking.car.name %></h3>
+<div class="booking-card">
+  <!-- Header -->
+  <div class="booking-header">
+    <h3>Booking for <%= booking.car.name %></h3>
+    <span class="status <%= booking.status %>"><%= booking.status.titleize %></span>
+  </div>
 
-          <p><strong>Renter Name:</strong> <%= booking.renter.full_name.presence || "Not provided" %></p>
-          <p><strong>Renter Email:</strong> <%= booking.renter.email %></p>
-          <p><strong>Renter Phone:</strong> <%= booking.renter.phone_number %></p>
+  <!-- Renter Info -->
+  <div class="booking-info">
+    <p><strong>Renter Name:</strong> <%= booking.renter.full_name.presence || "Not provided" %></p>
+    <p><strong>Email:</strong> <%= booking.renter.email %></p>
+    <p><strong>Phone:</strong> <%= booking.renter.phone_number %></p>
+    <p><strong>ID Number:</strong> <%= booking.id_number || "Not provided" %></p>
+    <p><strong>Nationality:</strong> <%= booking.nationality %></p>
+    <p><strong>Purpose:</strong> <%= booking.purpose %></p>
+  </div>
 
-          <p><strong>Start Date & Time:</strong>
-            <%= booking.start_time&.strftime("%b %d, %Y %I:%M %p") || "Not set" %>
-          </p>
+  <!-- Booking Details -->
+  <div class="booking-details">
+    <p><strong>Start:</strong> <%= booking.start_time&.strftime("%b %d, %Y %I:%M %p") || "Not set" %></p>
+    <p><strong>Return:</strong> <%= booking.planned_return_at&.strftime("%b %d, %Y %I:%M %p") || "Not set" %></p>
+    <p><strong>Delivery:</strong> <%= booking.delivery_method %></p>
+    <p><strong>Pickup:</strong> <%= booking.pickup_location || "Not provided" %></p>
+    <p><strong>Driver:</strong> <%= booking.has_driver? ? "Yes" : "No" %></p>
+  </div>
 
-          <p><strong>Planned Return:</strong>
-            <%= booking.planned_return_at&.strftime("%b %d, %Y %I:%M %p") || "Not set" %>
-          </p>
+  <!-- Payment Status -->
+  <div id="booking_payment_<%= booking.id %>" class="booking-payment">
+    <%= render "owners/booking_payment_status", booking: booking %>
+  </div>
 
-          <p><strong>ID Number:</strong> <%= booking.id_number || "Not provided" %></p>
-          <p><strong>Purpose:</strong> <%= booking.purpose %></p>
-          <p><strong>Nationality:</strong> <%= booking.nationality %></p>
-          <p><strong>Delivery Method:</strong> <%= booking.delivery_method %></p>
-          <p><strong>Pickup Location:</strong> <%= booking.pickup_location || "Not provided" %></p>
-          <p><strong>Has Driver?:</strong> <%= booking.has_driver? ? "Yes" : "No" %></p>
+  <!-- Status Partial -->
+  <%= render "bookings/status", booking: booking %>
 
-          <p><strong>Status:</strong> <%= booking.status.titleize %></p>
+  <!-- Actions + Rental Summary -->
+  <div id="booking_actions_<%= booking.id %>" class="booking-actions">
+    <%= render "bookings/booking_actions", booking: booking, is_owner: (booking.car.owner == current_user) %>
 
-          <div id="booking_actions_<%= booking.id %>">
-          class="min-h-[2.5rem] flex items-center gap-3">
-  <%= render "booking_actions", booking: booking %>
+    <% if booking.pending_deposit? %>
+      <%= button_to "Approve", approve_booking_path(booking), method: :patch,
+                    data: { turbo_stream: true }, class: "btn btn-approve" %>
+      <%= button_to "Reject", reject_booking_path(booking), method: :patch,
+                    data: { turbo_stream: true }, class: "btn btn-reject" %>
+    <% end %>
+
+    <%= render "bookings/rental_summary", booking: booking, is_owner: (booking.car.owner == current_user) %>
+  </div>
 </div>
+<!-- Booking Management Styles -->
+<style>
+.booking-card {
+  display: grid;
+  grid-template-columns: 1fr 2fr; /* left narrower, right wider */
+  gap: 1.5rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  margin-bottom: 1.5rem;
+}
+
+.booking-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1.2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column; /* vertical stack */
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.booking-info,
+.booking-details,
+.booking-payment,
+.booking-actions {
+  margin-bottom: 1rem;
+}
+
+.booking-info p,
+.booking-details p {
+  margin: 0.3rem 0;
+}
 
 
-          <div class="mt-2 space-x-4">
-            <%= button_to "Approve", approve_booking_path(booking), method: :patch, local: true, class: "px-3 py-2 bg-green-600 text-white rounded" %>
-            <%= button_to "Reject", reject_booking_path(booking), method: :patch, local: true, class: "px-3 py-2 bg-red-600 text-white rounded" %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  <% else %>
-    <p class="text-gray-600">No bookings for your cars yet.</p>
-  <% end %>
-</div>
+ /* booking management styles */  
+ .bookings-section {
+  margin-top: 3rem;
+}
+
+.bookings-section h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.bookings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.booking-header h3 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.status {
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Status colors */
+.status.pending_deposit { background: #fff3cd; color: #856404; }
+.status.ready_for_pickup { background: #d4edda; color: #155724; }
+.status.completed { background: #e2e3e5; color: #383d41; }
+.status.rejected { background: #f8d7da; color: #721c24; }
+
+.booking-info, .booking-details {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.booking-info p, .booking-details p {
+  margin: 0.3rem 0;
+}
+
+.booking-payment {
+  margin: 1rem 0;
+}
+
+.booking-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-approve {
+  background: #28a745;
+  color: #fff;
+}
+
+.btn-approve:hover {
+  background: #218838;
+}
+
+.btn-reject {
+  background: #dc3545;
+  color: #fff;
+}
+
+.btn-reject:hover {
+  background: #c82333;
+}
+
+.no-bookings {
+  color: #666;
+  font-style: italic;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .booking-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .booking-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+</style>
+<%# End of booking management styles %>

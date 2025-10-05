@@ -1,5 +1,6 @@
 class MpesaCallbacksController < ApplicationController
-  skip_before_action :verify_authenticity_token, raise: false
+  # Disable CSRF and authentication for external callbacks
+  skip_before_action :verify_authenticity_token
   skip_before_action :authenticate_user!, raise: false
 
   # === B2C payout result ===
@@ -54,15 +55,16 @@ class MpesaCallbacksController < ApplicationController
 
     Rails.logger.info "✅ M‑Pesa #{stage || 'auto-detect'} callback: #{data.to_json}"
 
-    booking_id = extract_booking_id(data)
-    booking    = Booking.find_by(id: booking_id)
+    booking_id, detected_stage = extract_booking_id_and_stage(data)
+    booking = Booking.find_by(id: booking_id)
 
     unless booking
       Rails.logger.warn "⚠️ Payment callback received but booking not found. Data: #{data.inspect}"
       return head(:ok) # Prevent Safaricom retries
     end
 
-    # Auto‑detect stage if not explicitly given
+    # Prefer explicit stage from AccountReference, fallback to auto-detect
+    stage ||= detected_stage
     if stage.nil?
       if booking.deposit_paid_at.blank?
         stage = :deposit
@@ -74,7 +76,11 @@ class MpesaCallbacksController < ApplicationController
       end
     end
 
-    if data.dig("Body", "stkCallback", "ResultCode") == 0
+    result_code = data.dig("Body", "stkCallback", "ResultCode").to_i
+    result_desc = data.dig("Body", "stkCallback", "ResultDesc")
+
+    if result_code.zero?
+      # === SUCCESS ===
       receipt = extract_transaction_id(data)
       amount  = extract_amount(data)
 
@@ -108,7 +114,22 @@ class MpesaCallbacksController < ApplicationController
 
       Rails.logger.info "✅ #{stage.to_s.capitalize} payment processed for Booking ##{booking.id}"
     else
-      Rails.logger.warn "⚠️ Payment failed for Booking ##{booking.id}"
+      # === FAILURE ===
+      Rails.logger.warn "⚠️ Payment failed for Booking ##{booking.id}: #{result_desc}"
+
+      # Reset status so renter can retry
+      if stage == :deposit
+        booking.update!(status: :pending_deposit)
+      elsif stage == :final
+        booking.update!(status: :awaiting_final_payment)
+      end
+
+      # Notify renter about failure
+      PaymentMailer.with(
+        booking: booking,
+        stage: stage,
+        error_message: result_desc
+      ).payment_failed_email.deliver_later
     end
 
     head :ok
@@ -148,18 +169,21 @@ class MpesaCallbacksController < ApplicationController
   end
 
   # === Helpers to extract data from M‑Pesa payload ===
-  def extract_booking_id(data)
-    # Try AccountReference first
+  def extract_booking_id_and_stage(data)
     ref = data.dig("Body", "stkCallback", "CallbackMetadata", "Item")
              &.find { |i| i["Name"] == "AccountReference" }&.dig("Value")
-    return ref.to_s.remove("Booking").to_i if ref.present?
+    return [nil, nil] unless ref
 
-    # Fallback to MerchantRequestID / CheckoutRequestID
-    merchant_id = data.dig("Body", "stkCallback", "MerchantRequestID")
-    checkout_id = data.dig("Body", "stkCallback", "CheckoutRequestID")
+    booking_id = ref[/\d+/].to_i
+    stage = if ref.include?("Deposit")
+              :deposit
+            elsif ref.include?("Final")
+              :final
+            else
+              nil
+            end
 
-    Booking.find_by(merchant_request_id: merchant_id)&.id ||
-      Booking.find_by(checkout_request_id: checkout_id)&.id
+    [booking_id, stage]
   end
 
   def extract_transaction_id(data)
