@@ -8,7 +8,7 @@ class SupabaseStorageService
     @bucket = ENV['SUPABASE_BUCKET'] || 'car-images'
 
     # ✅ Correct initialization for the current Supabase gem
-    @client = Supabase::Client.new(@supabase_url, @supabase_key)
+    @client = Supabase::Client.new(url: @supabase_url, key: @supabase_key)
   end
 
   def upload(file)
