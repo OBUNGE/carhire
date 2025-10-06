@@ -1,34 +1,29 @@
-# app/services/supabase_storage_service.rb
-require "faraday"
+require 'supabase'
 
 class SupabaseStorageService
   def initialize
-    @base_url = "#{ENV['SUPABASE_URL']}/storage/v1/object"
-    @headers = {
-      "Authorization" => "Bearer #{ENV['SUPABASE_KEY']}",
-      "Content-Type" => "application/octet-stream"
-    }
+    @supabase_url = ENV['SUPABASE_URL']
+    @supabase_key = ENV['SUPABASE_KEY']
+    @bucket = ENV['SUPABASE_BUCKET'] || 'car-images'
+    @client = Supabase::Client.new(@supabase_url, @supabase_key)
   end
 
-def upload(file)
-  # Skip if file is blank or not an uploaded file
-  return nil if file.blank? || !file.respond_to?(:original_filename)
+  def upload(file)
+    # 🧠 Skip if file is empty or not an uploaded file object
+    return nil unless file.present? && file.respond_to?(:original_filename)
 
-  file_name = "#{SecureRandom.uuid}_#{file.original_filename}"
-  response = @client.storage.from(@bucket).upload(file_name, file.tempfile)
+    file_name = "#{SecureRandom.uuid}_#{file.original_filename}"
 
-  if response.error
-    Rails.logger.error("Supabase upload error: #{response.error.message}")
+    response = @client.storage.from(@bucket).upload(file_name, file.tempfile)
+
+    if response.error
+      Rails.logger.error("❌ Supabase upload failed: #{response.error.message}")
+      nil
+    else
+      "#{@supabase_url}/storage/v1/object/public/#{@bucket}/#{file_name}"
+    end
+  rescue => e
+    Rails.logger.error("🔥 Supabase upload exception: #{e.message}")
     nil
-  else
-    "#{@supabase_url}/storage/v1/object/public/#{@bucket}/#{file_name}"
-  end
-end
-
-
-  private
-
-  def public_url(path)
-    "#{ENV['SUPABASE_URL']}/storage/v1/object/public/#{path}"
   end
 end

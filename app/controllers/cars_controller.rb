@@ -42,14 +42,15 @@ class CarsController < ApplicationController
     @featured_cars = Car.where(status: "published").order("RANDOM()").limit(10)
   end
 
- def show
-  if @car.status == "draft" && @car.owner != current_user
-    redirect_to cars_path, alert: "This car is not available for public viewing."
-    return
-  end
+  def show
+    if @car.status == "draft" && @car.owner != current_user
+      redirect_to cars_path, alert: "This car is not available for public viewing."
+      return
+    end
 
-  @image_urls = @car.images.map { |img| url_for(img) }
-end
+    # Display Supabase image URLs
+    @image_urls = @car.image_urls || []
+  end
 
   def new
     @car = Car.new
@@ -58,47 +59,46 @@ end
   def edit
   end
 
-def create
-  @car = Car.new(car_params.except(:images))
-  @car.owner = current_user
-  @car.status = params[:draft] ? "draft" : "published"
+  def create
+    @car = Car.new(car_params.except(:images))
+    @car.owner = current_user
+    @car.status = params[:draft] ? "draft" : "published"
 
-  if params[:car][:images].present?
-    @car.image_urls = []
-    storage = SupabaseStorageService.new
+    if params[:car][:images].present?
+      @car.image_urls = []
+      storage = SupabaseStorageService.new
 
-    params[:car][:images].each do |file|
-      url = storage.upload(file)
-      @car.image_urls << url if url
+      params[:car][:images].each do |file|
+        url = storage.upload(file)
+        @car.image_urls << url if url
+      end
+    end
+
+    if @car.save
+      message = @car.status == "draft" ? "Car saved as draft." : "Car published successfully."
+      redirect_to @car, notice: message
+    else
+      render :new, status: :unprocessable_entity
     end
   end
 
-  if @car.save
-    message = @car.status == "draft" ? "Car saved as draft." : "Car published successfully."
-    redirect_to @car, notice: message
-  else
-    render :new, status: :unprocessable_entity
-  end
-end
+  def update
+    @car.status = params[:draft] ? "draft" : "published"
 
-def update
-  @car.status = params[:draft] ? "draft" : "published"
+    if params[:car][:images].present?
+      storage = SupabaseStorageService.new
+      params[:car][:images].each do |file|
+        url = storage.upload(file)
+        @car.image_urls << url if url
+      end
+    end
 
-  if params[:car][:images].present?
-    storage = SupabaseStorageService.new
-    params[:car][:images].each do |file|
-      url = storage.upload(file)
-      @car.image_urls << url if url
+    if @car.update(car_params.except(:images))
+      redirect_to @car, notice: "Car updated successfully."
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
-
-  if @car.update(car_params.except(:images))
-    redirect_to @car, notice: "Car updated successfully."
-  else
-    render :edit, status: :unprocessable_entity
-  end
-end
-
 
   def destroy
     @car.destroy!
@@ -106,15 +106,19 @@ end
   end
 
   def purge_image
-    image = @car.images.find(params[:image_id])
-    image.purge
-    redirect_to edit_car_path(@car), notice: "Image deleted successfully."
+    if params[:image_url].present?
+      @car.image_urls.delete(params[:image_url])
+      @car.save
+      redirect_to edit_car_path(@car), notice: "Image deleted successfully."
+    else
+      redirect_to edit_car_path(@car), alert: "No image specified."
+    end
   end
 
   private
 
   def set_car
-    @car = Car.with_attached_images.find(params[:id])
+    @car = Car.find(params[:id])
   end
 
   def authorize_car_owner!
@@ -141,8 +145,7 @@ end
       :insurance_status,
       :seats,
       :status,
-      images: [],
-      remove_image_ids: []
+      images: []
     )
   end
 end
