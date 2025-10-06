@@ -7,7 +7,7 @@ class SupabaseStorageService
     @supabase_key = ENV['SUPABASE_KEY']
     @bucket = ENV['SUPABASE_BUCKET'] || 'car-images'
 
-    # ✅ Correct initialization
+    # ✅ Correct Supabase client initialization
     @client = Supabase::Client.new(
       url: @supabase_url,
       key: @supabase_key
