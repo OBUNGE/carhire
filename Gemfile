@@ -80,3 +80,5 @@ gem 'dotenv-rails', groups: [:development, :test]
 
 
 
+
+gem "faraday", "~> 2.13"

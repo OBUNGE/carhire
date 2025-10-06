@@ -416,6 +416,7 @@ DEPENDENCIES
   debug
   devise
   dotenv-rails
+  faraday (~> 2.13)
   geocoder
   httparty
   image_processing (~> 1.2)

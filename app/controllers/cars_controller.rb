@@ -58,43 +58,47 @@ end
   def edit
   end
 
-  def create
-    @car = Car.new(car_params)
-    @car.owner = current_user
+def create
+  @car = Car.new(car_params.except(:images))
+  @car.owner = current_user
+  @car.status = params[:draft] ? "draft" : "published"
 
-    # Set status based on button clicked
-    @car.status = params[:draft] ? "draft" : "published"
+  if params[:car][:images].present?
+    @car.image_urls = []
+    storage = SupabaseStorageService.new
 
-    if @car.save
-      message = @car.status == "draft" ? "Car saved as draft." : "Car published successfully."
-      redirect_to @car, notice: message
-    else
-      render :new, status: :unprocessable_entity
+    params[:car][:images].each do |file|
+      url = storage.upload(file)
+      @car.image_urls << url if url
     end
   end
 
-  def update
-    @car.status = params[:draft] ? "draft" : "published"
+  if @car.save
+    message = @car.status == "draft" ? "Car saved as draft." : "Car published successfully."
+    redirect_to @car, notice: message
+  else
+    render :new, status: :unprocessable_entity
+  end
+end
 
-    # Remove selected images
-    if params[:car][:remove_image_ids].present?
-      params[:car][:remove_image_ids].each do |id|
-        @car.images.find(id).purge
-      end
-    end
+def update
+  @car.status = params[:draft] ? "draft" : "published"
 
-    # Append new images
-    if params[:car][:images].present?
-      @car.images.attach(params[:car][:images])
-    end
-
-    if @car.update(car_params.except(:images, :remove_image_ids))
-      message = @car.status == "draft" ? "Car updated and saved as draft." : "Car updated and published."
-      redirect_to @car, notice: message
-    else
-      render :edit, status: :unprocessable_entity
+  if params[:car][:images].present?
+    storage = SupabaseStorageService.new
+    params[:car][:images].each do |file|
+      url = storage.upload(file)
+      @car.image_urls << url if url
     end
   end
+
+  if @car.update(car_params.except(:images))
+    redirect_to @car, notice: "Car updated successfully."
+  else
+    render :edit, status: :unprocessable_entity
+  end
+end
+
 
   def destroy
     @car.destroy!
