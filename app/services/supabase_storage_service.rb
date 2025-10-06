@@ -10,17 +10,21 @@ class SupabaseStorageService
     }
   end
 
-  def upload(file, folder: "car-images")
-    filename = "#{folder}/#{SecureRandom.uuid}-#{file.original_filename}"
-    response = Faraday.put("#{@base_url}/#{filename}", file.read, @headers)
+def upload(file)
+  # Skip if file is blank or not an uploaded file
+  return nil if file.blank? || !file.respond_to?(:original_filename)
 
-    if response.success?
-      public_url(filename)
-    else
-      Rails.logger.error "Supabase upload failed: #{response.status} #{response.body}"
-      nil
-    end
+  file_name = "#{SecureRandom.uuid}_#{file.original_filename}"
+  response = @client.storage.from(@bucket).upload(file_name, file.tempfile)
+
+  if response.error
+    Rails.logger.error("Supabase upload error: #{response.error.message}")
+    nil
+  else
+    "#{@supabase_url}/storage/v1/object/public/#{@bucket}/#{file_name}"
   end
+end
+
 
   private
 
