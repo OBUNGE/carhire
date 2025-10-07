@@ -1,4 +1,38 @@
 <% content_for :title, "Welcome to Carhire" %>
+<%= form_with url: search_cars_path, method: :get, local: true,
+  style: "max-width:900px;margin:0 auto;padding:20px;background:rgba(255,255,255,0.9);
+          border-radius:12px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;" do |f| %>
+
+  <!-- Destination -->
+  <div style="flex:1;min-width:200px;">
+    <%= f.label :destination, "Destination", style: "font-weight:600;" %>
+    <%= f.text_field :destination, placeholder: "e.g. Nairobi, Mombasa",
+        style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;" %>
+  </div>
+
+  <!-- Start Date -->
+  <div style="flex:1;min-width:180px;">
+    <%= f.label :start_date, "Start Date", style: "font-weight:600;" %>
+    <%= f.date_field :start_date,
+        style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;" %>
+  </div>
+
+  <!-- End Date -->
+  <div style="flex:1;min-width:180px;">
+    <%= f.label :end_date, "End Date", style: "font-weight:600;" %>
+    <%= f.date_field :end_date,
+        style: "width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;" %>
+  </div>
+
+  <!-- Submit -->
+  <div>
+    <%= f.submit "Search Cars",
+        style: "padding:12px 24px;background:#2563eb;color:white;border:none;
+                border-radius:8px;cursor:pointer;font-size:16px;font-weight:600;" %>
+  </div>
+
+<% end %>
+
 
 <!-- Hero Section -->
 <section style="position:relative; height:90vh; background:url('<%= asset_path("hero-car.jpg") %>') center/cover no-repeat; display:flex; align-items:center; justify-content:center; color:white; text-align:center;">
