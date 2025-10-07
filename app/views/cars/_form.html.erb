@@ -106,30 +106,31 @@ document.addEventListener("DOMContentLoaded", () => {
       <%= form.text_area :description, rows: 4 %>
     </div>
 
-    <!-- Existing Images -->
-    <% if car.image_urls.present? %>
-      <div class="form-group">
-        <label>Existing Images</label>
-        <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;">
-          <% car.image_urls.each_with_index do |url, index| %>
-            <div style="border:1px solid #ccc; padding:8px; border-radius:6px;">
-              <%= image_tag url, style: "width:100%; border-radius:6px;" %>
-              <label style="display:flex; align-items:center; gap:6px; margin-top:8px;">
-                <%= check_box_tag "car[remove_image_urls][]", index, false %>
-                <span>Remove</span>
-              </label>
-            </div>
-          <% end %>
+  <!-- Existing Images -->
+<% if car.images.attached? %>
+  <div class="form-group">
+    <label>Existing Images</label>
+    <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;">
+      <% car.images.each do |image| %>
+        <div style="border:1px solid #ccc; padding:8px; border-radius:6px;">
+          <%= image_tag image.variant(resize_to_limit: [400, 300]), style: "width:100%; border-radius:6px;" %>
+          <!-- Optional: Add a remove checkbox -->
+          <label style="display:flex; align-items:center; gap:6px; margin-top:8px;">
+            <%= check_box_tag "car[remove_image_ids][]", image.id, false %>
+            <span>Remove</span>
+          </label>
         </div>
-      </div>
-    <% end %>
-
-    <!-- Upload New Images (Supabase URLs) -->
-    <div class="form-group">
-      <%= form.label :new_image_urls, "Add Image URLs (from Supabase)" %>
-      <%= form.text_area :new_image_urls, rows: 3, placeholder: "Paste one or more Supabase public URLs separated by commas" %>
-      <p style="font-size:0.9em; color:#555;">Example: https://your-supabase-project.supabase.co/storage/v1/object/public/carhirehub/public/car1.jpg</p>
+      <% end %>
     </div>
+  </div>
+<% end %>
+
+<!-- Upload New Images -->
+<div class="form-group">
+  <%= form.label :images, "Upload Car Images" %>
+  <%= form.file_field :images, multiple: true, direct_upload: true %>
+</div>
+
 
     <!-- Location -->
     <div class="form-group">

@@ -89,8 +89,8 @@
             </div>
           <% end %>
 
-          <% if car.image_urls.present? && car.image_urls.any? %>
-            <%= image_tag car.image_urls.first, style: "width:100%; height:150px; object-fit:cover; border-radius:8px;" %>
+          <% if car.images.attached? %>
+            <%= image_tag url_for(car.images.first), style: "width:100%; height:150px; object-fit:cover; border-radius:8px;" %>
           <% else %>
             <div style="width:100%; height:150px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; color:#888;">
               No image
