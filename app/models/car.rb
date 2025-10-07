@@ -6,6 +6,7 @@ class Car < ApplicationRecord
   has_many :reviews, dependent: :destroy
   has_many :favorites, dependent: :destroy
   has_many :favorited_by, through: :favorites, source: :user
+  has_many_attached :images
 
   # ✅ Modern syntax for Rails 8 — store image URLs as an array of strings
   attribute :image_urls, :string, array: true, default: []
