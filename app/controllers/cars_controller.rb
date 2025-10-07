@@ -1,6 +1,6 @@
 class CarsController < ApplicationController
   # Guests can browse and view published cars
-  skip_before_action :authenticate_user!, only: %i[index show]
+  skip_before_action :authenticate_user!, only: %i[index show search]
 
   # Must be logged in to create, edit, update, or delete a car
   before_action :authenticate_user!, only: %i[new create edit update destroy purge_image]
@@ -40,6 +40,28 @@ class CarsController < ApplicationController
 
     # Featured cars for carousel
     @featured_cars = Car.where(status: "published").order("RANDOM()").limit(10)
+  end
+
+  def search
+    @cars = Car.where(status: "published")
+
+    # Filter by destination (pickup_address)
+    if params[:destination].present?
+      @cars = @cars.by_destination(params[:destination])
+    end
+
+    # Filter by availability
+    if params[:start_time].present? && params[:end_time].present?
+      @cars = @cars.available_between(params[:start_time], params[:end_time])
+    end
+
+    # Randomise order for results
+    @cars = @cars.order("RANDOM()")
+
+    # Featured cars for carousel
+    @featured_cars = Car.where(status: "published").order("RANDOM()").limit(10)
+
+    render :index
   end
 
   def show
