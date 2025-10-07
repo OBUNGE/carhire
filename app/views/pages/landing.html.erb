@@ -4,7 +4,7 @@
 <section style="position:relative; height:90vh; background:url('<%= asset_path("hero-car.jpg") %>') center/cover no-repeat; display:flex; align-items:center; justify-content:center; color:white; text-align:center;">
   <div style="background:rgba(0,0,0,0.5); padding:2rem; border-radius:0.5rem;">
     <h1 style="font-size:3rem; font-weight:bold; margin-bottom:1rem;">Drive Your Dream, Rent or Buy Locally</h1>
-    <p style="font-size:1.25rem; margin-bottom:2rem;">Peer‑to‑peer car rentals and sales across Kenya — fast, secure, and M‑Pesa ready.</p>
+    <p style="font-size:1.25rem; margin-bottom:2rem;">Peer-to-peer car rentals and sales across Kenya — fast, secure, and M-Pesa ready.</p>
     <%= link_to "Browse Cars", cars_path, style: "background:#2563eb; color:white; padding:0.75rem 1.5rem; border-radius:0.375rem; text-decoration:none; font-weight:500;" %>
   </div>
 </section>
@@ -25,8 +25,8 @@
     </div>
     <div style="flex:1; min-width:200px; max-width:250px;">
       <%= image_tag "icon-pay.svg.png", alt: "Pay", style: "width:60px; margin-bottom:1rem;" %>
-      <h3>Pay Securely</  h3>
-      <p>Integrated M‑Pesa payments for fast, safe transactions.</p>
+      <h3>Pay Securely</h3>
+      <p>Integrated M-Pesa payments for fast, safe transactions.</p>
     </div>
   </div>
 </section>
@@ -39,18 +39,24 @@
   <div style="display:flex; overflow-x:auto; gap:1rem; padding-bottom:1rem; scroll-snap-type:x mandatory;">
     <% @featured_cars.each do |car| %>
       <div style="flex:0 0 auto; scroll-snap-align:start; background:white; border-radius:0.5rem; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); width:220px;">
-        <% if car.images.attached? %>
-          <%= image_tag car.images.first.variant(resize_to_limit: [300, 200]),
+        
+        <% if car.image_urls.present? && car.image_urls.any? %>
+          <%= image_tag car.image_urls.first,
               style: "width:100%; height:150px; object-fit:cover;" %>
         <% else %>
           <div style="width:100%; height:150px; background:#e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280;">
             No image
           </div>
         <% end %>
+
         <div style="padding:0.75rem;">
           <h3 style="font-size:1rem; font-weight:bold; margin-bottom:0.25rem;"><%= car.make %> <%= car.model %></h3>
           <p style="color:#4b5563; font-size:0.875rem; margin-bottom:0.5rem;">
-            <%= car.for_rent? ? "KES #{number_to_currency(car.price, unit: '')} / day" : "KES #{number_to_currency(car.price, unit: '')} total" %>
+            <% if car.for_rent? %>
+              KES <%= number_with_delimiter(car.price) %> / day
+            <% else %>
+              KES <%= number_with_delimiter(car.price) %> total
+            <% end %>
           </p>
           <%= link_to "View", car_path(car),
               style: "display:inline-block; background:#2563eb; color:white; padding:0.4rem 0.75rem; border-radius:0.375rem; text-decoration:none; font-size:0.875rem;" %>
@@ -64,7 +70,7 @@
 <section style="padding:3rem 1rem; text-align:center;">
   <h2 style="font-size:2rem; font-weight:bold; margin-bottom:2rem;">Why Choose Carhire?</h2>
   <ul style="list-style:none; padding:0; max-width:600px; margin:0 auto; text-align:left;">
-    <li style="margin-bottom:1rem;">✅ Local M‑Pesa integration for easy payments</li>
+    <li style="margin-bottom:1rem;">✅ Local M-Pesa integration for easy payments</li>
     <li style="margin-bottom:1rem;">✅ Verified owners and renters for trust and safety</li>
     <li style="margin-bottom:1rem;">✅ Wide selection of cars for every budget</li>
     <li>✅ Transparent pricing — no hidden fees</li>
