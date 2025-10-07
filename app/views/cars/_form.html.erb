@@ -7,6 +7,7 @@
     <strong>Error:</strong> <%= flash[:alert] %>
   </div>
 <% end %>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const flashNotice = document.getElementById("flash-notice");
@@ -23,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
-
 
 <div class="car-form-wrapper">
   <h1>Add or Edit Car</h1>
@@ -107,42 +107,29 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 
     <!-- Existing Images -->
-    <% if car.images.attached? %>
+    <% if car.image_urls.present? %>
       <div class="form-group">
         <label>Existing Images</label>
         <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;">
-          <% car.images.each do |image| %>
-            <% if image.persisted? %>
-              <div style="border:1px solid #ccc; padding:8px; border-radius:6px;">
-                <%= image_tag image.variant(resize_to_limit: [200, 200]), class: "rounded-lg w-full h-auto" %>
-                <label style="display:flex; align-items:center; gap:6px; margin-top:8px;">
-                  <%= check_box_tag "car[remove_image_ids][]", image.id, false %>
-                  <span>Remove</span>
-                </label>
-              </div>
-            <% end %>
+          <% car.image_urls.each_with_index do |url, index| %>
+            <div style="border:1px solid #ccc; padding:8px; border-radius:6px;">
+              <%= image_tag url, style: "width:100%; border-radius:6px;" %>
+              <label style="display:flex; align-items:center; gap:6px; margin-top:8px;">
+                <%= check_box_tag "car[remove_image_urls][]", index, false %>
+                <span>Remove</span>
+              </label>
+            </div>
           <% end %>
         </div>
       </div>
     <% end %>
 
-    <!-- Upload New Images -->
-   <div class="form-group image-preview" data-controller="image-preview">
-  <%= form.label :images, "Add More Images" %>
-
-  <!-- Visible button for mobile -->
-  <label for="car_images_input" class="upload-button" style="display:inline-block; padding:8px 12px; background:#007bff; color:white; border-radius:4px; cursor:pointer;">
-    Tap to select or take a photo
-  </label>
-
-  <%= form.file_field :images, multiple: true, direct_upload: true,
-        accept: 'image/*',
-        data: { action: "change->image-preview#preview" },
-        class: "hidden", id: "car_images_input" %>
-
-  <div id="preview" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; margin-top:16px;"></div>
-</div>
-
+    <!-- Upload New Images (Supabase URLs) -->
+    <div class="form-group">
+      <%= form.label :new_image_urls, "Add Image URLs (from Supabase)" %>
+      <%= form.text_area :new_image_urls, rows: 3, placeholder: "Paste one or more Supabase public URLs separated by commas" %>
+      <p style="font-size:0.9em; color:#555;">Example: https://your-supabase-project.supabase.co/storage/v1/object/public/carhirehub/public/car1.jpg</p>
+    </div>
 
     <!-- Location -->
     <div class="form-group">
