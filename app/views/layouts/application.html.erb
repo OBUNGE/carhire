@@ -26,45 +26,54 @@
 <body class="site-body">
 
   <!-- 🔹 Top Navigation Bar -->
-<header class="site-header">
-  <div class="logo">
-    <%= link_to "Carhire", root_path, class: "logo-link" %>
-  </div>
+  <header class="site-header">
+    <div class="logo">
+      <%= link_to "Carhire", root_path, class: "logo-link" %>
+    </div>
 
-  <!-- Hamburger for mobile -->
-  <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+    <!-- Hamburger for mobile -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
 
-  <nav class="nav-links" id="navLinks">
-    <%= link_to "Home", root_path, class: "nav-link" %>
-    <%= link_to "Browse Cars", cars_path, class: "nav-link" %>
+    <nav class="nav-links" id="navLinks">
+      <%= link_to "Home", root_path, class: "nav-link" %>
+      <%= link_to "Browse Cars", cars_path, class: "nav-link" %>
 
-    <% if user_signed_in? %>
-      <%= link_to "My Bookings", renter_dashboard_path, class: "nav-link" %>
-      <% if current_user.owner? || current_user.cars.exists? %>
-        <%= link_to "My Listings", owner_dashboard_path, class: "nav-link" %>
+      <% if user_signed_in? %>
+        <%= link_to "My Bookings", renter_dashboard_path, class: "nav-link" %>
+        <% if current_user.owner? || current_user.cars.exists? %>
+          <%= link_to "My Listings", owner_dashboard_path, class: "nav-link" %>
+        <% end %>
+        <%= link_to "Add Car", new_car_path, class: "nav-link" %>
+        <%= button_to "Logout", destroy_user_session_path, method: :delete,
+            form: { "data-turbo": "true" },
+            class: "logout-btn" %>
+      <% else %>
+        <%= link_to "Log in", new_user_session_path, class: "nav-link" %>
+        <%= link_to "Register", new_user_registration_path, class: "nav-link" %>
       <% end %>
-      <%= link_to "Add Car", new_car_path, class: "nav-link" %>
-      <%= button_to "Logout", destroy_user_session_path, method: :delete,
-          form: { "data-turbo": "true" },
-          class: "logout-btn" %>
-    <% else %>
-      <%= link_to "Log in", new_user_session_path, class: "nav-link" %>
-      <%= link_to "Register", new_user_registration_path, class: "nav-link" %>
-    <% end %>
-  </nav>
-</header>
+    </nav>
+  </header>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const toggle = document.getElementById("menuToggle");
-    const nav = document.getElementById("navLinks");
+  <!-- ✅ Updated Hamburger Script -->
+  <script>
+    document.addEventListener("turbo:load", () => {
+      const toggle = document.getElementById("menuToggle");
+      const nav = document.getElementById("navLinks");
 
-    toggle.addEventListener("click", () => {
-      nav.classList.toggle("open");
+      if (toggle && nav) {
+        toggle.addEventListener("click", () => {
+          nav.classList.toggle("open");
+        });
+
+        // Optional: close menu when a nav link is clicked
+        nav.querySelectorAll("a").forEach(link => {
+          link.addEventListener("click", () => {
+            nav.classList.remove("open");
+          });
+        });
+      }
     });
-  });
-</script>
-
+  </script>
 
   <!-- 🔔 Flash Messages -->
   <div id="flash-messages" class="flash-container">
@@ -92,8 +101,9 @@
     <p>© <%= Time.current.year %> Carhire. All rights reserved.</p>
   </footer>
 
+  <!-- Flash Auto-hide -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("turbo:load", () => {
       setTimeout(() => {
         const notice = document.getElementById("notice-message");
         const alert = document.getElementById("alert-message");
