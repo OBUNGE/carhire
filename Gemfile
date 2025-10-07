@@ -75,7 +75,7 @@ gem "activesupport", "= 8.0.2.1"
 
 gem 'httparty'
 
-gem 'supabase', '~> 0.2.0'
+gem 'supabase', '~> 0.1.0'
 
 # Gemfile
 gem 'geocoder'

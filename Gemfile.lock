@@ -437,7 +437,7 @@ DEPENDENCIES
   solid_cache
   solid_queue
   stimulus-rails
-  supabase
+  supabase (~> 0.1.0)
   tailwindcss-rails
   thruster
   turbo-rails
