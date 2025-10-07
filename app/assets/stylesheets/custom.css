@@ -1,13 +1,25 @@
-/* Base header styles */
-body {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+/* Base styles */
+html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   background: #f9fafb;
   color: #333;
   line-height: 1.6;
 }
 
+.site-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.site-main {
+  flex: 1;
+}
+
+/* Header */
 .site-header {
   background: #2563eb;
   color: white;
@@ -66,7 +78,7 @@ body {
   color: #1e40af;
 }
 
-/* Hamburger button - hidden on desktop */
+/* Hamburger button */
 .menu-toggle {
   display: none;
   background: none;
@@ -76,13 +88,14 @@ body {
   cursor: pointer;
 }
 
-/* Mobile menu styles */
+/* Mobile menu */
 @media (max-width: 768px) {
   .menu-toggle {
     display: block;
   }
 
   .nav-links {
+    display: none; /* hide by default */
     position: absolute;
     top: 60px;
     right: 0;
@@ -97,17 +110,19 @@ body {
   }
 
   .nav-links.open {
+    display: flex; /* show when toggled */
     transform: translateX(0);
   }
 }
 
+/* Footer */
 .site-footer {
   background: #111827;
   color: #fffdfd;
   text-align: center;
   padding: 16px 24px;
   font-size: 14px;
-  margin-top: 0px;
+  margin-top: auto;
 }
 
 /* welcome banner */
