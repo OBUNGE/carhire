@@ -6,10 +6,9 @@ class Car < ApplicationRecord
   has_many :reviews, dependent: :destroy
   has_many :favorites, dependent: :destroy
   has_many :favorited_by, through: :favorites, source: :user
-  has_many_attached :images
 
-  # ✅ Modern syntax for Rails 8 — store image URLs as an array of strings
-  attribute :image_urls, :string, array: true, default: []
+  # ✅ Active Storage
+  has_many_attached :images
 
   # -------------------
   # Validations
@@ -34,15 +33,12 @@ class Car < ApplicationRecord
   # -------------------
   # Scopes
   # -------------------
-
-  # Filter cars that are available between given times
   scope :available_between, ->(start_time, end_time) {
     where.not(
       id: Booking.where("start_time < ? AND planned_return_at > ?", end_time, start_time).pluck(:car_id)
     )
   }
 
-  # Filter cars by destination (pickup_address or location field)
   scope :by_destination, ->(destination) {
     where("pickup_address ILIKE ?", "%#{destination}%") if destination.present?
   }
@@ -50,7 +46,6 @@ class Car < ApplicationRecord
   # -------------------
   # Helpers
   # -------------------
-
   def for_rent?
     listing_type == "rent"
   end
@@ -63,7 +58,6 @@ class Car < ApplicationRecord
     status == "published"
   end
 
-  # ✅ Check if a car is available for a given date range
   def available?(start_time, end_time)
     bookings.where("start_time < ? AND planned_return_at > ?", end_time, start_time).none?
   end
@@ -71,7 +65,7 @@ class Car < ApplicationRecord
   private
 
   def must_have_at_least_one_image
-    if image_urls.blank? || image_urls.empty?
+    if images.blank?
       errors.add(:images, "cannot be empty — must have at least one image")
     end
   end
