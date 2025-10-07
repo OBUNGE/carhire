@@ -70,9 +70,6 @@ class CarsController < ApplicationController
       return
     end
 
-    # Display Supabase image URLs
-    @image_urls = @car.image_urls || []
-
     # Availability check if dates are passed in
     if params[:start_time].present? && params[:end_time].present?
       unless @car.available?(params[:start_time], params[:end_time])
@@ -89,19 +86,8 @@ class CarsController < ApplicationController
   end
 
   def create
-    @car = Car.new(car_params.except(:images))
-    @car.owner = current_user
+    @car = current_user.cars.build(car_params)
     @car.status = params[:draft] ? "draft" : "published"
-
-    if params[:car][:images].present?
-      @car.image_urls = []
-      storage = SupabaseStorageService.new
-
-      params[:car][:images].each do |file|
-        url = storage.upload(file)
-        @car.image_urls << url if url
-      end
-    end
 
     if @car.save
       message = @car.status == "draft" ? "Car saved as draft." : "Car published successfully."
@@ -114,15 +100,7 @@ class CarsController < ApplicationController
   def update
     @car.status = params[:draft] ? "draft" : "published"
 
-    if params[:car][:images].present?
-      storage = SupabaseStorageService.new
-      params[:car][:images].each do |file|
-        url = storage.upload(file)
-        @car.image_urls << url if url
-      end
-    end
-
-    if @car.update(car_params.except(:images))
+    if @car.update(car_params)
       redirect_to @car, notice: "Car updated successfully."
     else
       render :edit, status: :unprocessable_entity
@@ -135,10 +113,14 @@ class CarsController < ApplicationController
   end
 
   def purge_image
-    if params[:image_url].present?
-      @car.image_urls.delete(params[:image_url])
-      @car.save
-      redirect_to edit_car_path(@car), notice: "Image deleted successfully."
+    if params[:image_id].present?
+      image = @car.images.find_by_id(params[:image_id])
+      if image
+        image.purge
+        redirect_to edit_car_path(@car), notice: "Image deleted successfully."
+      else
+        redirect_to edit_car_path(@car), alert: "Image not found."
+      end
     else
       redirect_to edit_car_path(@car), alert: "No image specified."
     end
@@ -174,7 +156,7 @@ class CarsController < ApplicationController
       :insurance_status,
       :seats,
       :status,
-      images: []
+      images: [] # ✅ Active Storage attachments
     )
   end
 end
