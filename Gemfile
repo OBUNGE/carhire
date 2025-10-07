@@ -77,6 +77,9 @@ gem 'httparty'
 
 gem 'supabase', '~> 0.1.0'
 
+gem "aws-sdk-s3", require: false
+
+
 # Gemfile
 gem 'geocoder'
 
