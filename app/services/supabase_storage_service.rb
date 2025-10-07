@@ -7,7 +7,7 @@ class SupabaseStorageService
   def initialize
     @supabase_url = ENV['SUPABASE_URL']        # e.g. https://xyzcompany.supabase.co
     @supabase_key = ENV['SUPABASE_KEY']
-    @bucket = ENV['SUPABASE_BUCKET'] || 'car-images'
+    @bucket = ENV['SUPABASE_BUCKET'] || 'carhirehub'
   end
 
   def upload(file)

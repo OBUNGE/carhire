@@ -24,7 +24,7 @@ gem 'mini_magick'
 gem "devise"
 gem "image_processing", "~> 1.2"
 
-gem "supabase"
+
 
 
 
@@ -75,14 +75,11 @@ gem "activesupport", "= 8.0.2.1"
 
 gem 'httparty'
 
+gem 'supabase', '~> 0.2.0'
+
 # Gemfile
 gem 'geocoder'
 
 gem 'dotenv-rails', groups: [:development, :test]
-
-
-
-
-
 
 gem "faraday", "~> 2.13"
