@@ -6,8 +6,8 @@ class Car < ApplicationRecord
   has_many :favorites, dependent: :destroy
   has_many :favorited_by, through: :favorites, source: :user
 
-  # Ensure image_urls is always an array
-  serialize :image_urls, Array
+  # ✅ Modern syntax for Rails 8 — store image URLs as an array of strings
+  attribute :image_urls, :string, array: true, default: []
 
   validates :transmission_type, inclusion: { in: ["Automatic", "Manual"], allow_blank: true }
   validates :fuel_type, inclusion: { in: ["Petrol", "Diesel", "Electric", "Hybrid"], allow_blank: true }
