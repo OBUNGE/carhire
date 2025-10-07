@@ -37,7 +37,7 @@ class Car < ApplicationRecord
   # Filter cars that are available between given times
   scope :available_between, ->(start_time, end_time) {
     where.not(
-      id: Booking.where("start_time <= ? AND planned_return_at >= ?", end_time, start_time).pluck(:car_id)
+      id: Booking.where("start_time < ? AND planned_return_at > ?", end_time, start_time).pluck(:car_id)
     )
   }
 
@@ -49,6 +49,7 @@ class Car < ApplicationRecord
   # -------------------
   # Helpers
   # -------------------
+
   def for_rent?
     listing_type == "rent"
   end
@@ -59,6 +60,11 @@ class Car < ApplicationRecord
 
   def published?
     status == "published"
+  end
+
+  # ✅ Check if a car is available for a given date range
+  def available?(start_time, end_time)
+    bookings.where("start_time < ? AND planned_return_at > ?", end_time, start_time).none?
   end
 
   private

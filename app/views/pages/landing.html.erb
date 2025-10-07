@@ -9,7 +9,7 @@
 
     <!-- Transparent Inline Search Form -->
     <%= form_with url: search_cars_path, method: :get, local: true,
-      style: "display:flex; gap:12px; justify-content:center; align-items:center; background:rgba(255,255,255,0.15); padding:16px; border-radius:12px; backdrop-filter:blur(6px); flex-wrap:wrap;" do |f| %>
+      style: "display:flex; gap:12px; justify-content:center; align-items:center; background:rgba(255,255,255,0.15); padding:16px; border-radius:12px; backdrop-filter:blur(6px); flex-wrap:wrap; max-width:1000px; margin:0 auto;" do |f| %>
 
       <!-- Destination -->
       <%= f.text_field :destination, placeholder: "Destination",

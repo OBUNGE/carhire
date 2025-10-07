@@ -72,6 +72,13 @@ class CarsController < ApplicationController
 
     # Display Supabase image URLs
     @image_urls = @car.image_urls || []
+
+    # Availability check if dates are passed in
+    if params[:start_time].present? && params[:end_time].present?
+      unless @car.available?(params[:start_time], params[:end_time])
+        flash.now[:alert] = "This car is not available from #{params[:start_time]} to #{params[:end_time]}."
+      end
+    end
   end
 
   def new
