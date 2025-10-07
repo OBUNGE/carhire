@@ -54,18 +54,21 @@
     </nav>
   </header>
 
-  <!-- ✅ Updated Hamburger Script -->
+  <!-- ✅ Fixed Hamburger Script -->
   <script>
     document.addEventListener("turbo:load", () => {
       const toggle = document.getElementById("menuToggle");
       const nav = document.getElementById("navLinks");
 
       if (toggle && nav) {
+        // Reset previous listeners
+        toggle.onclick = null;
+
         toggle.addEventListener("click", () => {
           nav.classList.toggle("open");
         });
 
-        // Optional: close menu when a nav link is clicked
+        // Close menu when a nav link is clicked
         nav.querySelectorAll("a").forEach(link => {
           link.addEventListener("click", () => {
             nav.classList.remove("open");
@@ -118,6 +121,5 @@
       }, 4000);
     });
   </script>
-
 </body>
 </html>
