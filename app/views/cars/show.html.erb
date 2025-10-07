@@ -120,7 +120,7 @@
 
   <% @car.reviews.each do |review| %>
     <div style="border:1px solid #ddd; border-radius:8px; padding:12px; margin-bottom:10px;">
-      <strong><%= review.user.email %></strong>
+      <strong><%= review.user.first_name %></strong>
       <div>
         <% 5.times do |i| %>
           <% if i < review.rating %>
