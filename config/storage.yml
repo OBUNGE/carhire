@@ -19,9 +19,10 @@ supabase:
   service: S3
   access_key_id: <%= ENV["SUPABASE_ACCESS_KEY"] %>
   secret_access_key: <%= ENV["SUPABASE_SECRET_KEY"] %>
-  region: "us-east-1"
+  region: "us-east-1" # dummy region, required by aws-sdk-s3
   bucket: <%= ENV["SUPABASE_BUCKET"] %>
-  endpoint: <%= ENV["SUPABASE_URL"] %>
+  endpoint: <%= ENV["SUPABASE_URL"] %>/storage/v1/s3
+  force_path_style: true
 
 # Example of multi-service mirroring (optional)
 # mirror:
