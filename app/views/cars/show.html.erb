@@ -15,35 +15,23 @@
 <div style="display:flex; flex-wrap:wrap; gap:20px; margin-top:20px;">
   <!-- LEFT: Image Gallery -->
   <div style="flex:1 1 60%; min-width:300px;">
-    <% if @car.images.attached? %>
-      <!-- Main Image -->
+    <% if @car.image_url.present? %>
       <div style="position:relative; width:100%; height:70vh; border-radius:16px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
-        <%= image_tag url_for(@car.images.first), id: "mainImage",
+        <%= image_tag @car.image_url, id: "mainImage",
             style: "width:100%; height:100%; object-fit:cover; transition:0.4s ease; border-radius:16px;" %>
 
-        <!-- Overlay Title -->
         <div style="position:absolute; top:20px; left:20px; background:rgba(0,0,0,0.6); color:white; padding:10px 16px; border-radius:8px; font-size:20px; font-weight:600;">
           <%= @car.make %> <%= @car.model %>
         </div>
 
-        <!-- Navigation -->
         <button onclick="showPrevImage()"
                 style="position:absolute; top:50%; left:15px; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; border-radius:50%; width:40px; height:40px; cursor:pointer;">&#10094;</button>
 
         <button onclick="showNextImage()"
                 style="position:absolute; top:50%; right:15px; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; border-radius:50%; width:40px; height:40px; cursor:pointer;">&#10095;</button>
       </div>
-
-      <!-- Thumbnails -->
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <% @car.images.each_with_index do |image, index| %>
-          <%= image_tag image.variant(resize_to_limit: [150, 100]),
-              onclick: "showImageAtIndex(#{index})",
-              style: "cursor:pointer; border-radius:6px;" %>
-        <% end %>
-      </div>
     <% else %>
-      <p style="color:#666; font-style:italic;">No images available for this car.</p>
+      <p style="color:#666; font-style:italic;">No image available for this car.</p>
     <% end %>
   </div>
 
@@ -143,7 +131,7 @@
             <span class="star" data-value="<%= i+1 %>" style="font-size:24px; color:#ddd;">&#9733;</span>
           <% end %>
         </div>
-               <%= form.hidden_field :rating, id:"ratingInput" %>
+        <%= form.hidden_field :rating, id:"ratingInput" %>
       </div>
       <div>
         <%= form.label :comment %>
@@ -153,13 +141,12 @@
     <% end %>
   <% end %>
 </div>
-
 <%= link_to "Back to Cars", cars_path, style:"display:inline-block; margin-top:30px; background:#f3f4f6; padding:10px 18px; border-radius:8px; font-weight:500; text-decoration:none; color:#111;" %>
 
 <script>
   document.addEventListener("turbo:load", () => {
-    // Build image array from Active Storage
-    window.imageUrls = <%= raw(@car.images.map { |img| url_for(img) }.to_json) %>;
+    // Supabase image logic
+    window.imageUrls = ["<%= @car.image_url %>"];
     window.currentIndex = 0;
     const mainImg = document.getElementById("mainImage");
     if (imageUrls.length > 0 && mainImg) mainImg.src = imageUrls[0];
