@@ -18,6 +18,7 @@
     <% if @car.car_images.any? %>
       <div style="position:relative; width:100%; height:70vh; border-radius:16px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
         <%= image_tag @car.cover_url, id: "mainImage",
+            alt: "#{@car.make} #{@car.model}",
             style: "width:100%; height:100%; object-fit:cover; transition:0.4s ease; border-radius:16px;" %>
 
         <div style="position:absolute; top:20px; left:20px; background:rgba(0,0,0,0.6); color:white; padding:10px 16px; border-radius:8px; font-size:20px; font-weight:600;">
@@ -34,7 +35,9 @@
       <!-- Thumbnails -->
       <div style="display:flex; gap:10px; margin-top:10px; overflow-x:auto;">
         <% @car.car_images.each_with_index do |img, idx| %>
-          <%= image_tag img.image_url, onclick: "showImageAtIndex(#{idx})",
+          <%= image_tag img.image_url,
+              alt: "#{@car.make} #{@car.model} image #{idx+1}",
+              onclick: "showImageAtIndex(#{idx})",
               style: "width:100px; height:70px; object-fit:cover; border-radius:6px; cursor:pointer; border:#{img.cover? ? '2px solid #2563eb' : '1px solid #ccc'};" %>
         <% end %>
       </div>
@@ -85,7 +88,7 @@
   <p><%= @car.description.presence || "No description provided." %></p>
 </div>
 
-<!-- Map (unchanged) -->
+<!-- Map -->
 <div style="margin-top:40px;">
   <h2 style="font-size:20px; font-weight:600; margin-bottom:10px;">Pickup Location</h2>
   <% if @car.latitude.present? && @car.longitude.present? %>
@@ -110,7 +113,7 @@
   <% end %>
 </div>
 
-<!-- Reviews (unchanged) -->
+<!-- Reviews -->
 <div style="margin-top:40px;">
   <h2 style="font-size:20px; font-weight:600; margin-bottom:10px;">Reviews</h2>
   <% @car.reviews.each do |review| %>
@@ -128,12 +131,13 @@
       <p><%= review.comment %></p>
     </div>
   <% end %>
+
   <% if user_signed_in? %>
     <%= form_with(model:[@car, Review.new], local:true, style:"margin-top:15px; display:flex; flex-direction:column; gap:10px;") do |form| %>
       <div>
         <%= form.label :rating %><br>
-                <div id="starRating" style="display:flex; gap:5px; cursor:pointer;">
-          <% 5.times do |i| %>
+        <div id="starRating" style="display:flex; gap:5px; cursor:pointer;">
+                    <% 5.times do |i| %>
             <span class="star" data-value="<%= i+1 %>" style="font-size:24px; color:#ddd;">&#9733;</span>
           <% end %>
         </div>
@@ -168,14 +172,16 @@
     // Star rating logic
     const stars = document.querySelectorAll("#starRating .star");
     const ratingInput = document.getElementById("ratingInput");
-    stars.forEach(star => {
-      star.addEventListener("click", () => {
-        const value = star.dataset.value;
-        ratingInput.value = value;
-        stars.forEach(s => s.style.color = "#ddd");
-        for (let i = 0; i < value; i++) stars[i].style.color = "#f5a623";
+    if (stars.length > 0 && ratingInput) {
+      stars.forEach(star => {
+        star.addEventListener("click", () => {
+          const value = star.dataset.value;
+          ratingInput.value = value;
+          stars.forEach(s => s.style.color = "#ddd");
+          for (let i = 0; i < value; i++) stars[i].style.color = "#f5a623";
+        });
       });
-    });
+    }
   });
 
   function showImageAtIndex(index) {
@@ -207,5 +213,3 @@
     document.getElementById("bookingModal").style.display = "none";
   }
 </script>
-
-        
