@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 
     <!-- Existing Images -->
-    <% if car.car_images.any? %>
+    <% if car.persisted? && car.car_images.any? %>
       <div class="form-group">
         <label>Current Images</label>
         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px;">
@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     <% end %>
 
-        <!-- Upload New Images -->
+    <!-- Upload New Images -->
     <div class="form-group">
       <%= form.label :images, "Upload Car Images" %>
       <%= form.file_field :images, multiple: true, accept: "image/*" %>
