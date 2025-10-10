@@ -74,9 +74,8 @@ class CarsController < ApplicationController
     @car.status = params[:draft] ? "draft" : "published"
 
     if params[:car][:image].present?
-      uploader = SupabaseUploader.new
-      filename = "#{SecureRandom.uuid}_#{params[:car][:image].original_filename}"
-      public_url = uploader.upload(params[:car][:image], path: "cars/#{filename}")
+      uploader = SupabaseStorageService.new
+      public_url = uploader.upload(params[:car][:image])
       @car.image_url = public_url if public_url.present?
     end
 
@@ -92,9 +91,8 @@ class CarsController < ApplicationController
     @car.status = params[:draft] ? "draft" : "published"
 
     if params[:car][:image].present?
-      uploader = SupabaseUploader.new
-      filename = "#{SecureRandom.uuid}_#{params[:car][:image].original_filename}"
-      public_url = uploader.upload(params[:car][:image], path: "cars/#{filename}")
+      uploader = SupabaseStorageService.new
+      public_url = uploader.upload(params[:car][:image])
       @car.image_url = public_url if public_url.present?
     end
 

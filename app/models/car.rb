@@ -7,22 +7,23 @@ class Car < ApplicationRecord
   has_many :favorites, dependent: :destroy
   has_many :favorited_by, through: :favorites, source: :user
 
-  # ❌ Remove ActiveStorage
-  # has_many_attached :images
+  # ✅ Supabase image URL replaces ActiveStorage
+  # Removed: has_many_attached :images
 
   # -------------------
   # Validations
   # -------------------
+  validates :make, :model, :price, :pickup_address, presence: true
   validates :transmission_type, inclusion: { in: ["Automatic", "Manual"], allow_blank: true }
   validates :fuel_type, inclusion: { in: ["Petrol", "Diesel", "Electric", "Hybrid"], allow_blank: true }
   validates :insurance_status, inclusion: { in: ["Fully insured", "Third-party", "Not insured"], allow_blank: true }
   validates :seats, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+  validates :image_url, presence: true, if: :published?
 
   STATUSES = %w[draft published].freeze
   LISTING_TYPES = %w[rent sell].freeze
 
   validates :status, inclusion: { in: STATUSES }
-  validates :image_url, presence: true, if: :published?
 
   # -------------------
   # Geocoding
