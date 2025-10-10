@@ -7,8 +7,8 @@ class Car < ApplicationRecord
   has_many :favorites, dependent: :destroy
   has_many :favorited_by, through: :favorites, source: :user
 
-  # ✅ Active Storage
-  has_many_attached :images
+  # ❌ Remove ActiveStorage
+  # has_many_attached :images
 
   # -------------------
   # Validations
@@ -22,7 +22,7 @@ class Car < ApplicationRecord
   LISTING_TYPES = %w[rent sell].freeze
 
   validates :status, inclusion: { in: STATUSES }
-  validate :must_have_at_least_one_image, if: :published?
+  validates :image_url, presence: true, if: :published?
 
   # -------------------
   # Geocoding
@@ -60,13 +60,5 @@ class Car < ApplicationRecord
 
   def available?(start_time, end_time)
     bookings.where("start_time < ? AND planned_return_at > ?", end_time, start_time).none?
-  end
-
-  private
-
-  def must_have_at_least_one_image
-    if images.blank?
-      errors.add(:images, "cannot be empty — must have at least one image")
-    end
   end
 end
