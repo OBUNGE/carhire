@@ -19,7 +19,8 @@
       <div style="position:relative; width:100%; height:70vh; border-radius:16px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
         <%= image_tag @car.cover_url, id: "mainImage",
             alt: "#{@car.make} #{@car.model}",
-            style: "width:100%; height:100%; object-fit:cover; transition:0.4s ease; border-radius:16px;" %>
+            onclick: "openLightbox(imageUrls[currentIndex])",
+            style: "width:100%; height:100%; object-fit:cover; transition:0.4s ease; border-radius:16px; cursor:pointer;" %>
 
         <div style="position:absolute; top:20px; left:20px; background:rgba(0,0,0,0.6); color:white; padding:10px 16px; border-radius:8px; font-size:20px; font-weight:600;">
           <%= @car.make %> <%= @car.model %>
@@ -37,7 +38,7 @@
         <% @car.car_images.each_with_index do |img, idx| %>
           <%= image_tag img.image_url,
               alt: "#{@car.make} #{@car.model} image #{idx+1}",
-              onclick: "showImageAtIndex(#{idx})",
+              onclick: "showImageAtIndex(#{idx}); openLightbox(imageUrls[#{idx}])",
               style: "width:100px; height:70px; object-fit:cover; border-radius:6px; cursor:pointer; border:#{img.cover? ? '2px solid #2563eb' : '1px solid #ccc'};" %>
         <% end %>
       </div>
@@ -136,11 +137,12 @@
     <%= form_with(model:[@car, Review.new], local:true, style:"margin-top:15px; display:flex; flex-direction:column; gap:10px;") do |form| %>
       <div>
         <%= form.label :rating %><br>
-        <div id="starRating" style="display:flex; gap:5px; cursor:pointer;">
-                    <% 5.times do |i| %>
-            <span class="star" data-value="<%= i+1 %>" style="font-size:24px; color:#ddd;">&#9733;</span>
+        <div id="starRating" style="display:flex; gap:5px;">
+          <% 5.times do |i| %>
+            <span class="star" data-value="<%= i+1 %>" style="font-size:24px; color:#ccc; cursor:pointer;">&#9733;</span>
           <% end %>
         </div>
+                </div>
         <%= form.hidden_field :rating, id:"ratingInput" %>
       </div>
 
@@ -157,6 +159,15 @@
 
 <%= link_to "Back to Cars", cars_path,
       style:"display:inline-block; margin-top:30px; background:#f3f4f6; padding:10px 18px; border-radius:8px; font-weight:500; text-decoration:none; color:#111;" %>
+
+<!-- Lightbox Modal -->
+<div id="lightbox" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(0,0,0,0.9); z-index:10000; align-items:center; justify-content:center;">
+  <span onclick="closeLightbox()" 
+        style="position:absolute; top:20px; right:30px; color:white; font-size:40px; cursor:pointer;">&times;</span>
+  <img id="lightboxImage" src="" 
+       style="max-width:90%; max-height:90%; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.5);" />
+</div>
 
 <script>
   document.addEventListener("turbo:load", () => {
@@ -182,6 +193,16 @@
         });
       });
     }
+
+    // Keyboard navigation for lightbox
+    document.addEventListener("keydown", (e) => {
+      const lightbox = document.getElementById("lightbox");
+      if (lightbox.style.display === "flex") {
+        if (e.key === "ArrowRight") showNextImage();
+        if (e.key === "ArrowLeft") showPrevImage();
+        if (e.key === "Escape") closeLightbox();
+      }
+    });
   });
 
   function showImageAtIndex(index) {
@@ -194,12 +215,14 @@
     if (!imageUrls || imageUrls.length === 0) return;
     currentIndex = (currentIndex + 1) % imageUrls.length;
     document.getElementById("mainImage").src = imageUrls[currentIndex];
+    document.getElementById("lightboxImage").src = imageUrls[currentIndex];
   }
 
   function showPrevImage() {
     if (!imageUrls || imageUrls.length === 0) return;
     currentIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length;
     document.getElementById("mainImage").src = imageUrls[currentIndex];
+    document.getElementById("lightboxImage").src = imageUrls[currentIndex];
   }
 
   function openBookingModal() {
@@ -211,5 +234,16 @@
 
   function closeBookingModal() {
     document.getElementById("bookingModal").style.display = "none";
+  }
+
+  function openLightbox(url) {
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImage = document.getElementById("lightboxImage");
+    lightboxImage.src = url;
+    lightbox.style.display = "flex";
+  }
+
+  function closeLightbox() {
+    document.getElementById("lightbox").style.display = "none";
   }
 </script>
