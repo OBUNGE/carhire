@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 <div class="car-form-wrapper">
-  <h1>Add or Edit Car</h1>
+  <h1><%= car.new_record? ? "Add Car" : "Edit Car" %></h1>
 
   <%= form_with(model: car, local: true, html: { multipart: true }) do |form| %>
     <% if car.errors.any? %>
@@ -106,20 +106,39 @@ document.addEventListener("DOMContentLoaded", () => {
       <%= form.text_area :description, rows: 4 %>
     </div>
 
-    <!-- Existing Image -->
-    <% if car.image_url.present? %>
+    <!-- Existing Images -->
+    <% if car.car_images.any? %>
       <div class="form-group">
-        <label>Current Image</label>
-        <div style="display:grid; grid-template-columns:1fr; gap:16px;">
-          <%= image_tag car.image_url, style: "width:100%; border-radius:6px;" %>
+        <label>Current Images</label>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px;">
+          <% car.car_images.each do |img| %>
+            <div style="position:relative; border:1px solid #eee; border-radius:6px; padding:8px;">
+              <%= image_tag img.image_url, style: "width:100%; border-radius:4px;" %>
+
+              <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
+                <% if img.cover? %>
+                  <span style="font-size:0.875rem; color:green;">Cover ✓</span>
+                <% else %>
+                  <%= link_to "Set as cover", set_cover_car_car_image_path(car, img),
+                              method: :patch, class: "btn btn-sm btn-outline-primary" %>
+                <% end %>
+
+                <%= link_to "Delete", car_car_image_path(car, img),
+                            method: :delete,
+                            data: { confirm: "Are you sure you want to delete this image?" },
+                            class: "btn btn-sm btn-outline-danger" %>
+              </div>
+            </div>
+          <% end %>
         </div>
       </div>
     <% end %>
 
-    <!-- Upload New Image -->
+        <!-- Upload New Images -->
     <div class="form-group">
-      <%= form.label :image, "Upload Car Image" %>
-      <%= form.file_field :image %>
+      <%= form.label :images, "Upload Car Images" %>
+      <%= form.file_field :images, multiple: true, accept: "image/*" %>
+      <p style="font-size:0.875rem; color:#555;">You can select multiple files. Accepted formats: JPG, PNG.</p>
     </div>
 
     <!-- Location -->

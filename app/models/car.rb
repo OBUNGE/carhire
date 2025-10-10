@@ -7,19 +7,25 @@ class Car < ApplicationRecord
   has_many :favorites, dependent: :destroy
   has_many :favorited_by, through: :favorites, source: :user
 
-  # ✅ Supabase image URL replaces ActiveStorage
-  # Removed: has_many_attached :images
+  # -------------------
+  # Images (Supabase-backed)
+  # -------------------
+  has_many :car_images, dependent: :destroy
+  has_one :cover_image, -> { where(cover: true) }, class_name: "CarImage"
+
+  accepts_nested_attributes_for :car_images, allow_destroy: true
 
   # -------------------
   # Validations
   # -------------------
- 
-  validates :image_url, presence: true, if: :published?
-
   STATUSES = %w[draft published].freeze
   LISTING_TYPES = %w[rent sell].freeze
 
   validates :status, inclusion: { in: STATUSES }
+  validates :listing_type, inclusion: { in: LISTING_TYPES }
+
+  # Require at least one image if published
+  validate :must_have_image_if_published
 
   # -------------------
   # Geocoding

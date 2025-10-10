@@ -47,14 +47,17 @@ Rails.application.routes.draw do
   post "/payment/refund_timeout_callback", to: "mpesa_callbacks#refund_timeout_callback"
 
   # =========================
-  # Cars
+  # Cars + nested resources
   # =========================
   resources :cars do
     resources :reviews, only: [:create]
     resources :bookings, only: [:new, :create]
 
-    member do
-      delete 'purge_image/:image_id', to: 'cars#purge_image', as: 'purge_image'
+    # Nested car_images for deletion and cover switching
+    resources :car_images, only: [:destroy] do
+      member do
+        patch :set_cover
+      end
     end
 
     collection do

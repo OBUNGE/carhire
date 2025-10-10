@@ -70,17 +70,17 @@ class CarsController < ApplicationController
   end
 
   def create
-    @car = current_user.cars.build(car_params.except(:image))
+    @car = current_user.cars.build(car_params.except(:images))
     @car.status = params[:draft] ? "draft" : "published"
 
-    if params[:car][:image].present?
-      Rails.logger.info("📦 Received image: #{params[:car][:image].original_filename}")
+    if params[:car][:images].present?
       uploader = SupabaseStorageService.new
-      public_url = uploader.upload(params[:car][:image])
-      Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
-      @car.image_url = public_url if public_url.present?
-    else
-      Rails.logger.warn("⚠️ No image found in params")
+      params[:car][:images].each_with_index do |image, idx|
+        Rails.logger.info("📦 Received image: #{image.original_filename}")
+        public_url = uploader.upload(image)
+        Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
+        @car.car_images.build(image_url: public_url, cover: idx.zero?) if public_url.present?
+      end
     end
 
     if @car.save
@@ -95,18 +95,26 @@ class CarsController < ApplicationController
   def update
     @car.status = params[:draft] ? "draft" : "published"
 
-    if params[:car][:image].present?
-      Rails.logger.info("📦 Updating image: #{params[:car][:image].original_filename}")
+    if params[:car][:images].present?
       uploader = SupabaseStorageService.new
-      public_url = uploader.upload(params[:car][:image])
-      Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
-      @car.image_url = public_url if public_url.present?
+      params[:car][:images].each do |image|
+        Rails.logger.info("📦 Updating with new image: #{image.original_filename}")
+        public_url = uploader.upload(image)
+        Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
+        @car.car_images.build(image_url: public_url, cover: false) if public_url.present?
+      end
     end
 
-    if @car.update(car_params.except(:image))
+    if params[:cover_image_id].present?
+      @car.car_images.update_all(cover: false)
+      selected = @car.car_images.find_by(id: params[:cover_image_id])
+      selected&.update(cover: true)
+    end
+
+    if @car.update(car_params.except(:images))
       redirect_to @car, notice: "Car updated successfully."
     else
-      flash.now[:alert] = "Image upload may have failed. Please try again."
+      flash.now[:alert] = "Update failed. Please try again."
       render :edit, status: :unprocessable_entity
     end
   end
@@ -146,7 +154,7 @@ class CarsController < ApplicationController
       :insurance_status,
       :seats,
       :status,
-      :image # ✅ Supabase image upload
+      images: [] # ✅ multiple Supabase image uploads
     )
   end
 end
