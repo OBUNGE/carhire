@@ -65,6 +65,17 @@ class Car < ApplicationRecord
     bookings.where("start_time < ? AND planned_return_at > ?", end_time, start_time).none?
   end
 
+  # Returns the URL of the cover image, or falls back to the first image, or a placeholder
+  def cover_url
+    if cover_image.present?
+      cover_image.image_url
+    elsif car_images.any?
+      car_images.first.image_url
+    else
+      ActionController::Base.helpers.asset_path("placeholder_car.png")
+    end
+  end
+
   private
 
   # -------------------
