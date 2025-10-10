@@ -66,8 +66,7 @@ class CarsController < ApplicationController
     @car = Car.new
   end
 
-  def edit
-  end
+  def edit; end
 
   def create
     @car = current_user.cars.build(car_params.except(:images))
@@ -76,6 +75,8 @@ class CarsController < ApplicationController
     if params[:car][:images].present?
       uploader = SupabaseStorageService.new
       params[:car][:images].each_with_index do |image, idx|
+        next unless image.respond_to?(:original_filename) # ✅ guard
+
         Rails.logger.info("📦 Received image: #{image.original_filename}")
         public_url = uploader.upload(image)
         Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
@@ -98,6 +99,8 @@ class CarsController < ApplicationController
     if params[:car][:images].present?
       uploader = SupabaseStorageService.new
       params[:car][:images].each do |image|
+        next unless image.respond_to?(:original_filename) # ✅ guard
+
         Rails.logger.info("📦 Updating with new image: #{image.original_filename}")
         public_url = uploader.upload(image)
         Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
