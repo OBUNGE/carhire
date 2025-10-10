@@ -64,4 +64,15 @@ class Car < ApplicationRecord
   def available?(start_time, end_time)
     bookings.where("start_time < ? AND planned_return_at > ?", end_time, start_time).none?
   end
+
+  private
+
+  # -------------------
+  # Custom Validations
+  # -------------------
+  def must_have_image_if_published
+    if published? && car_images.empty?
+      errors.add(:base, "A published car must have at least one image.")
+    end
+  end
 end
