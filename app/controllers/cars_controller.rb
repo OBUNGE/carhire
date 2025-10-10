@@ -74,15 +74,20 @@ class CarsController < ApplicationController
     @car.status = params[:draft] ? "draft" : "published"
 
     if params[:car][:image].present?
+      Rails.logger.info("📦 Received image: #{params[:car][:image].original_filename}")
       uploader = SupabaseStorageService.new
       public_url = uploader.upload(params[:car][:image])
+      Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
       @car.image_url = public_url if public_url.present?
+    else
+      Rails.logger.warn("⚠️ No image found in params")
     end
 
     if @car.save
       message = @car.status == "draft" ? "Car saved as draft." : "Car published successfully."
       redirect_to @car, notice: message
     else
+      flash.now[:alert] = "Image upload may have failed. Please try again."
       render :new, status: :unprocessable_entity
     end
   end
@@ -91,14 +96,17 @@ class CarsController < ApplicationController
     @car.status = params[:draft] ? "draft" : "published"
 
     if params[:car][:image].present?
+      Rails.logger.info("📦 Updating image: #{params[:car][:image].original_filename}")
       uploader = SupabaseStorageService.new
       public_url = uploader.upload(params[:car][:image])
+      Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
       @car.image_url = public_url if public_url.present?
     end
 
     if @car.update(car_params.except(:image))
       redirect_to @car, notice: "Car updated successfully."
     else
+      flash.now[:alert] = "Image upload may have failed. Please try again."
       render :edit, status: :unprocessable_entity
     end
   end

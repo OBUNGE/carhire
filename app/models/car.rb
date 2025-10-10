@@ -13,11 +13,7 @@ class Car < ApplicationRecord
   # -------------------
   # Validations
   # -------------------
-  validates :make, :model, :price, :pickup_address, presence: true
-  validates :transmission_type, inclusion: { in: ["Automatic", "Manual"], allow_blank: true }
-  validates :fuel_type, inclusion: { in: ["Petrol", "Diesel", "Electric", "Hybrid"], allow_blank: true }
-  validates :insurance_status, inclusion: { in: ["Fully insured", "Third-party", "Not insured"], allow_blank: true }
-  validates :seats, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+ 
   validates :image_url, presence: true, if: :published?
 
   STATUSES = %w[draft published].freeze
