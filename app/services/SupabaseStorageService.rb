@@ -2,6 +2,7 @@ require 'net/http'
 require 'uri'
 require 'json'
 require 'securerandom'
+require 'erb'
 
 class SupabaseStorageService
   def initialize
@@ -13,7 +14,10 @@ class SupabaseStorageService
   def upload(file)
     return nil unless file.present? && file.respond_to?(:original_filename)
 
-    file_name = "#{SecureRandom.uuid}_#{file.original_filename}"
+    # ✅ Sanitize filename: replace spaces and unsafe chars
+    safe_filename = file.original_filename.gsub(/\s+/, "_").gsub(/[^0-9A-Za-z.\-]/, "_")
+    file_name = "#{SecureRandom.uuid}_#{safe_filename}"
+
     uri = URI("#{@supabase_url}/storage/v1/object/#{@bucket}/#{file_name}")
 
     request = Net::HTTP::Post.new(uri)
