@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         el.style.transition = "opacity 0.5s ease-out";
         el.style.opacity = "0";
         setTimeout(() => el.remove(), 500);
-      }, 4000); // visible for 4 seconds
+      }, 4000);
     }
   });
 });
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <div class="car-form-wrapper">
   <h1>Add or Edit Car</h1>
 
-  <%= form_with(model: car, local: true) do |form| %>
+  <%= form_with(model: car, local: true, html: { multipart: true }) do |form| %>
     <% if car.errors.any? %>
       <div class="form-group" style="background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; padding:12px; border-radius:6px;">
         <strong><%= pluralize(car.errors.count, "error") %> prevented this car from being saved:</strong>
@@ -106,31 +106,21 @@ document.addEventListener("DOMContentLoaded", () => {
       <%= form.text_area :description, rows: 4 %>
     </div>
 
-  <!-- Existing Images -->
-<% if car.images.attached? %>
-  <div class="form-group">
-    <label>Existing Images</label>
-    <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;">
-      <% car.images.each do |image| %>
-        <div style="border:1px solid #ccc; padding:8px; border-radius:6px;">
-          <%= image_tag image.variant(resize_to_limit: [400, 300]), style: "width:100%; border-radius:6px;" %>
-          <!-- Optional: Add a remove checkbox -->
-          <label style="display:flex; align-items:center; gap:6px; margin-top:8px;">
-            <%= check_box_tag "car[remove_image_ids][]", image.id, false %>
-            <span>Remove</span>
-          </label>
+    <!-- Existing Image -->
+    <% if car.image_url.present? %>
+      <div class="form-group">
+        <label>Current Image</label>
+        <div style="display:grid; grid-template-columns:1fr; gap:16px;">
+          <%= image_tag car.image_url, style: "width:100%; border-radius:6px;" %>
         </div>
-      <% end %>
+      </div>
+    <% end %>
+
+    <!-- Upload New Image -->
+    <div class="form-group">
+      <%= form.label :image, "Upload Car Image" %>
+      <%= form.file_field :image %>
     </div>
-  </div>
-<% end %>
-
-<!-- Upload New Images -->
-<div class="form-group">
-  <%= form.label :images, "Upload Car Images" %>
-  <%= form.file_field :images, multiple: true, direct_upload: true %>
-</div>
-
 
     <!-- Location -->
     <div class="form-group">
