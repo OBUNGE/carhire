@@ -1,27 +1,20 @@
 class CarsController < ApplicationController
-  # Guests can browse and view published cars
   skip_before_action :authenticate_user!, only: %i[index show search]
-
-  # Must be logged in to create, edit, update, or delete a car
-  before_action :authenticate_user!, only: %i[new create edit update destroy purge_image]
-  before_action :set_car, only: %i[show edit update destroy purge_image]
-  before_action :authorize_car_owner!, only: %i[edit update destroy purge_image]
+  before_action :authenticate_user!, only: %i[new create edit update destroy]
+  before_action :set_car, only: %i[show edit update destroy]
+  before_action :authorize_car_owner!, only: %i[edit update destroy]
 
   def index
-    # Only show published cars to guests
     @cars = Car.where(status: "published")
 
-    # Search by make or model
     if params[:query].present?
       @cars = @cars.where("make ILIKE ? OR model ILIKE ?", "%#{params[:query]}%", "%#{params[:query]}%")
     end
 
-    # Filter by category
     if params[:category].present?
       @cars = @cars.where(category: params[:category])
     end
 
-    # Filter by price range
     if params[:price_range].present?
       case params[:price_range]
       when "low"
@@ -35,30 +28,22 @@ class CarsController < ApplicationController
       end
     end
 
-    # Randomise order for grid
     @cars = @cars.order("RANDOM()")
-
-    # Featured cars for carousel
     @featured_cars = Car.where(status: "published").order("RANDOM()").limit(10)
   end
 
   def search
     @cars = Car.where(status: "published")
 
-    # Filter by destination (pickup_address)
     if params[:destination].present?
       @cars = @cars.by_destination(params[:destination])
     end
 
-    # Filter by availability
     if params[:start_time].present? && params[:end_time].present?
       @cars = @cars.available_between(params[:start_time], params[:end_time])
     end
 
-    # Randomise order for results
     @cars = @cars.order("RANDOM()")
-
-    # Featured cars for carousel
     @featured_cars = Car.where(status: "published").order("RANDOM()").limit(10)
 
     render :index
@@ -70,7 +55,6 @@ class CarsController < ApplicationController
       return
     end
 
-    # Availability check if dates are passed in
     if params[:start_time].present? && params[:end_time].present?
       unless @car.available?(params[:start_time], params[:end_time])
         flash.now[:alert] = "This car is not available from #{params[:start_time]} to #{params[:end_time]}."
@@ -86,8 +70,15 @@ class CarsController < ApplicationController
   end
 
   def create
-    @car = current_user.cars.build(car_params)
+    @car = current_user.cars.build(car_params.except(:image))
     @car.status = params[:draft] ? "draft" : "published"
+
+    if params[:car][:image].present?
+      uploader = SupabaseUploader.new
+      filename = "#{SecureRandom.uuid}_#{params[:car][:image].original_filename}"
+      public_url = uploader.upload(params[:car][:image], path: "cars/#{filename}")
+      @car.image_url = public_url if public_url.present?
+    end
 
     if @car.save
       message = @car.status == "draft" ? "Car saved as draft." : "Car published successfully."
@@ -100,7 +91,14 @@ class CarsController < ApplicationController
   def update
     @car.status = params[:draft] ? "draft" : "published"
 
-    if @car.update(car_params)
+    if params[:car][:image].present?
+      uploader = SupabaseUploader.new
+      filename = "#{SecureRandom.uuid}_#{params[:car][:image].original_filename}"
+      public_url = uploader.upload(params[:car][:image], path: "cars/#{filename}")
+      @car.image_url = public_url if public_url.present?
+    end
+
+    if @car.update(car_params.except(:image))
       redirect_to @car, notice: "Car updated successfully."
     else
       render :edit, status: :unprocessable_entity
@@ -110,20 +108,6 @@ class CarsController < ApplicationController
   def destroy
     @car.destroy!
     redirect_to cars_path, notice: "Car was successfully deleted."
-  end
-
-  def purge_image
-    if params[:image_id].present?
-      image = @car.images.find_by_id(params[:image_id])
-      if image
-        image.purge
-        redirect_to edit_car_path(@car), notice: "Image deleted successfully."
-      else
-        redirect_to edit_car_path(@car), alert: "Image not found."
-      end
-    else
-      redirect_to edit_car_path(@car), alert: "No image specified."
-    end
   end
 
   private
@@ -156,7 +140,7 @@ class CarsController < ApplicationController
       :insurance_status,
       :seats,
       :status,
-      images: [] # ✅ Active Storage attachments
+      :image # ✅ Supabase image upload
     )
   end
 end
