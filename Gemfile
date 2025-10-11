@@ -69,7 +69,7 @@ end
 
 gem "jsbundling-rails", "~> 1.3"
 
-gem "activesupport", "= 8.0.2.1"
+gem "activesupport", "8.0.3"
 
 gem 'httparty'
 
