@@ -91,26 +91,27 @@
       <%= form.text_area :description, rows: 4 %>
     </div>
 
-    <!-- Existing Images -->
-    <% if car.persisted? && car.car_images.any? %>
-      <label class="form-group">Current Images</label>
-      <div id="sortable-images" class="image-preview">
-        <% car.car_images.each do |img| %>
-          <div class="sortable-item" data-id="<%= img.id %>">
-            <div class="drag-handle">☰</div>
-            <%= image_tag img.image_url %>
-            <div class="image-actions">
-              <% if img.cover? %>
-                <span class="cover-label">Cover ✓</span>
-              <% else %>
-                <a href="#" onclick="setCover('<%= set_cover_car_car_image_path(car, img) %>')">Make Cover</a>
-              <% end %>
-              <a href="#" onclick="confirmDelete('<%= car_car_image_path(car, img) %>')">🗑</a>
-            </div>
-          </div>
-        <% end %>
+<!-- Existing Images -->
+<% if car.persisted? && car.car_images.any? %>
+  <label class="form-group">Current Images</label>
+  <div id="sortable-images" class="image-preview">
+    <% car.car_images.each do |img| %>
+      <div class="sortable-item" data-id="<%= img.id %>">
+        <div class="drag-handle">☰</div>
+        <%= image_tag img.image_url %>
+        <div class="image-actions">
+          <% if img.cover? %>
+            <span class="cover-label">Cover ✓</span>
+          <% else %>
+            <a href="#" class="cover-link" onclick="setCover('<%= set_cover_car_car_image_path(car, img) %>')">Make Cover</a>
+          <% end %>
+          <a href="#" class="delete-link" onclick="confirmDelete('<%= car_car_image_path(car, img) %>')">🗑 Delete</a>
+        </div>
       </div>
     <% end %>
+  </div>
+<% end %>
+
 
     <!-- Upload New Images -->
     <div class="form-group">
