@@ -1,38 +1,23 @@
+<% car ||= @car %>
+
 <% if flash[:notice] %>
-  <div class="form-group flash-message" id="flash-notice" style="background:#e6ffed; border:1px solid #a7f3d0; color:#065f46; padding:12px; border-radius:6px;">
+  <div id="flash-notice" class="bg-green-50 border border-green-300 text-green-800 p-3 rounded mb-4">
     <strong>Success:</strong> <%= flash[:notice] %>
   </div>
 <% elsif flash[:alert] %>
-  <div class="form-group flash-message" id="flash-alert" style="background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; padding:12px; border-radius:6px;">
+  <div id="flash-alert" class="bg-red-50 border border-red-300 text-red-800 p-3 rounded mb-4">
     <strong>Error:</strong> <%= flash[:alert] %>
   </div>
 <% end %>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const flashNotice = document.getElementById("flash-notice");
-  const flashAlert = document.getElementById("flash-alert");
-
-  [flashNotice, flashAlert].forEach((el) => {
-    if (el) {
-      setTimeout(() => {
-        el.style.transition = "opacity 0.5s ease-out";
-        el.style.opacity = "0";
-        setTimeout(() => el.remove(), 500);
-      }, 4000);
-    }
-  });
-});
-</script>
-
 <div class="car-form-wrapper">
-  <h1><%= car.new_record? ? "Add Car" : "Edit Car" %></h1>
+  <h1 class="text-2xl font-bold mb-4"><%= car.new_record? ? "Add Car" : "Edit Car" %></h1>
 
   <%= form_with(model: car, local: true, html: { multipart: true }) do |form| %>
     <% if car.errors.any? %>
-      <div class="form-group" style="background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; padding:12px; border-radius:6px;">
+      <div class="bg-red-50 border border-red-300 text-red-800 p-3 rounded mb-4">
         <strong><%= pluralize(car.errors.count, "error") %> prevented this car from being saved:</strong>
-        <ul>
+        <ul class="list-disc pl-5">
           <% car.errors.each do |error| %>
             <li><%= error.full_message %></li>
           <% end %>
@@ -41,134 +26,206 @@ document.addEventListener("DOMContentLoaded", () => {
     <% end %>
 
     <!-- Basic Info -->
-    <div class="form-group">
-      <%= form.label :make %>
-      <%= form.text_field :make %>
-    </div>
+    <%= form.label :make %>
+    <%= form.text_field :make, class: "input" %>
 
-    <div class="form-group">
-      <%= form.label :model %>
-      <%= form.text_field :model %>
-    </div>
+    <%= form.label :model %>
+    <%= form.text_field :model, class: "input" %>
 
-    <div class="form-group">
-      <%= form.label :year %>
-      <%= form.number_field :year %>
-    </div>
+    <%= form.label :year %>
+    <%= form.number_field :year, class: "input" %>
 
-    <div class="form-group">
-      <%= form.label :price, "Price (KES)" %>
-      <%= form.number_field :price, step: 50 %>
-    </div>
+    <%= form.label :price, "Price (KES)" %>
+    <%= form.number_field :price, step: 50, class: "input" %>
 
     <!-- Specs -->
-    <div class="form-group">
-      <%= form.label :transmission_type %>
-      <%= form.select :transmission_type, ["Automatic", "Manual"], prompt: "Select transmission type" %>
-    </div>
+    <%= form.label :transmission_type %>
+    <%= form.select :transmission_type, ["Automatic", "Manual"], prompt: "Select transmission type", class: "input" %>
 
-    <div class="form-group">
-      <%= form.label :fuel_type %>
-      <%= form.select :fuel_type, ["Petrol", "Diesel", "Electric", "Hybrid"], prompt: "Select fuel type" %>
-    </div>
+    <%= form.label :fuel_type %>
+    <%= form.select :fuel_type, ["Petrol", "Diesel", "Electric", "Hybrid"], prompt: "Select fuel type", class: "input" %>
 
-    <div class="form-group">
-      <%= form.label :insurance_status %>
-      <%= form.select :insurance_status, ["Fully insured", "Third-party", "Not insured"], prompt: "Select insurance status" %>
-    </div>
+    <%= form.label :insurance_status %>
+    <%= form.select :insurance_status, ["Fully insured", "Third-party", "Not insured"], prompt: "Select insurance status", class: "input" %>
 
-    <div class="form-group">
-      <%= form.label :seats, "Number of Seats" %>
-      <%= form.number_field :seats, min: 1, max: 100, step: 1, placeholder: "e.g. 5" %>
-    </div>
+    <%= form.label :seats, "Number of Seats" %>
+    <%= form.number_field :seats, min: 1, max: 100, step: 1, placeholder: "e.g. 5", class: "input" %>
 
     <!-- Listing Type -->
-    <div class="form-group">
-      <%= form.label :listing_type %>
-      <div class="radio-group">
-        <% Car::LISTING_TYPES.each do |type| %>
-          <label>
-            <%= form.radio_button :listing_type, type %>
-            <%= type.titleize %>
-          </label>
-        <% end %>
-      </div>
-    </div>
+    <%= form.label :listing_type %>
+    <% Car::LISTING_TYPES.each do |type| %>
+      <label class="inline-flex items-center mr-4">
+        <%= form.radio_button :listing_type, type %>
+        <span class="ml-2"><%= type.titleize %></span>
+      </label>
+    <% end %>
 
-    <div class="form-group">
-      <%= form.label :deposit_amount, "Security Deposit (KES)" %>
-      <%= form.number_field :deposit_amount, step: 50, min: 0 %>
-    </div>
+    <%= form.label :deposit_amount, "Security Deposit (KES)" %>
+    <%= form.number_field :deposit_amount, step: 50, min: 0, class: "input" %>
 
     <!-- Description -->
-    <div class="form-group">
-      <%= form.label :description %>
-      <%= form.text_area :description, rows: 4 %>
-    </div>
+    <%= form.label :description %>
+    <%= form.text_area :description, rows: 4, class: "input" %>
 
     <!-- Existing Images -->
     <% if car.persisted? && car.car_images.any? %>
-      <div class="form-group">
-        <label>Current Images</label>
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px;">
-          <% car.car_images.each do |img| %>
-            <div style="position:relative; border:1px solid #eee; border-radius:6px; padding:8px;">
-              <%= image_tag img.image_url, style: "width:100%; border-radius:4px;" %>
-
-              <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
-                <% if img.cover? %>
-                  <span style="font-size:0.875rem; color:green;">Cover ✓</span>
-                <% else %>
-                  <%= link_to "Set as cover", set_cover_car_car_image_path(car, img),
-                              method: :patch, class: "btn btn-sm btn-outline-primary" %>
-                <% end %>
-
-                <%= link_to "Delete", car_car_image_path(car, img),
-                            method: :delete,
-                            data: { confirm: "Are you sure you want to delete this image?" },
-                            class: "btn btn-sm btn-outline-danger" %>
-              </div>
+      <label class="block font-semibold mt-4 mb-2">Current Images</label>
+      <div id="sortable-images" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <% car.car_images.each do |img| %>
+          <div class="sortable-item border rounded p-2 relative" data-id="<%= img.id %>">
+            <div class="drag-handle absolute top-2 left-2 cursor-grab text-xl">☰</div>
+            <%= image_tag img.image_url, class: "rounded w-full" %>
+            <div class="flex justify-between items-center mt-2">
+              <% if img.cover? %>
+                <span class="text-green-600 text-sm">Cover ✓</span>
+              <% else %>
+                <a href="#" onclick="setCover('<%= set_cover_car_car_image_path(car, img) %>')" class="text-blue-600 text-sm">Make Cover</a>
+              <% end %>
+              <a href="#" onclick="confirmDelete('<%= car_car_image_path(car, img) %>')" class="text-red-600 text-sm">🗑</a>
             </div>
-          <% end %>
-        </div>
+          </div>
+        <% end %>
       </div>
     <% end %>
 
     <!-- Upload New Images -->
-    <div class="form-group">
-      <%= form.label :images, "Upload Car Images" %>
-      <%= form.file_field :images, multiple: true, accept: "image/*" %>
-      <p style="font-size:0.875rem; color:#555;">You can select multiple files. Accepted formats: JPG, PNG.</p>
-    </div>
+    <%= form.label :images, "Upload Car Images" %>
+    <%= form.file_field :images, multiple: true, accept: "image/*", class: "input" %>
+    <p class="text-sm text-gray-600">You can select multiple files. Accepted formats: JPG, PNG.</p>
+    <div id="preview-area" class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2"></div>
 
     <!-- Location -->
-    <div class="form-group">
-      <%= form.label :pickup_address %>
-      <%= form.text_field :pickup_address %>
-    </div>
+    <%= form.label :pickup_address %>
+    <%= form.text_field :pickup_address, class: "input" %>
 
-    <div class="form-group">
-      <%= form.label :latitude %>
-      <%= form.text_field :latitude %>
-    </div>
+    <%= form.label :latitude %>
+    <%= form.text_field :latitude, class: "input" %>
 
-    <div class="form-group">
-      <%= form.label :longitude %>
-      <%= form.text_field :longitude %>
-    </div>
+    <%= form.label :longitude %>
+    <%= form.text_field :longitude, class: "input" %>
 
     <!-- Category -->
-    <div class="form-group">
-      <%= form.label :category %>
-      <%= form.select :category, [
-          'SUV', 'Sedan', 'Hatchback', 'Truck', 'Van', 'Luxury', 'Convertible', 'Electric Car', 'Other'
-        ], { prompt: 'Select a category' } %>
-    </div>
+    <%= form.label :category %>
+    <%= form.select :category, ['SUV', 'Sedan', 'Hatchback', 'Truck', 'Van', 'Luxury', 'Convertible', 'Electric Car', 'Other'], { prompt: 'Select a category' }, class: "input" %>
 
     <!-- Buttons -->
-    <div class="button-group">
-      <%= form.submit "Save as Draft", name: "draft", class: "button-secondary" %>
-      <%= form.submit "Publish", name: "publish", class: "button-primary" %>
+    <div class="mt-4 flex gap-4">
+      <%= form.submit "Save as Draft", name: "draft", class: "bg-gray-300 px-4 py-2 rounded" %>
+      <%= form.submit "Publish", name: "publish", class: "bg-blue-600 text-white px-4 py-2 rounded" %>
     </div>
   <% end %>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Flash fade
+  ["flash-notice", "flash-alert"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      setTimeout(() => {
+        el.style.transition = "opacity 0.5s ease-out";
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 500);
+      }, 4000);
+    }
+  });
+
+  // SortableJS
+  const el = document.getElementById("sortable-images");
+  if (el) {
+    new Sortable(el, {
+      animation: 150,
+      handle: ".drag-handle",
+      onEnd: function () {
+        const ids = Array.from(el.querySelectorAll(".sortable-item"))
+                         .map(item => item.dataset.id);
+
+        fetch("<%= reorder_car_car_images_path(car) %>", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": document.querySelector('meta[name=\"csrf-token\"]').content
+          },
+          body: JSON.stringify({ car_image_ids: ids })
+        }).then(() => {
+          const toast = document.createElement("div");
+          toast.textContent = "Image order saved ✅";
+          toast.style.position = "fixed";
+          toast.style.bottom = "20px";
+          toast.style.right = "20px";
+          toast.style.background = "#2563eb";
+          toast.style.color = "white";
+          toast.style.padding = "12px 20px";
+          toast.style.borderRadius = "8px";
+          toast.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
+          toast.style.zIndex = "9999";
+          toast.style.fontWeight = "500";
+          document.body.appendChild(toast);
+          setTimeout(() => {
+            toast.style.opacity = "0";
+            setTimeout(() => toast.remove(), 500);
+          }, 3000);
+        });
+      }
+    });
+  }
+
+  // Image preview for uploads
+  const fileInput = document.querySelector('input[type="file"][multiple]');
+  const previewArea = document.getElementById("preview-area");
+
+  if (fileInput && previewArea) {
+    fileInput.addEventListener("change", () => {
+      previewArea.innerHTML = ""; // Clear previous previews
+
+      Array.from(fileInput.files).forEach(file => {
+        const reader = new FileReader();
+
+        reader.onload = e => {
+          const imgWrapper = document.createElement("div");
+          imgWrapper.style.position = "relative";
+          imgWrapper.style.borderRadius = "6px";
+          imgWrapper.style.overflow = "hidden";
+          imgWrapper.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+          imgWrapper.style.marginBottom = "8px";
+
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.style.width = "100%";
+          img.style.height = "auto";
+          img.style.display = "block";
+          img.style.objectFit = "cover";
+
+          imgWrapper.appendChild(img);
+          previewArea.appendChild(imgWrapper);
+        };
+
+        reader.readAsDataURL(file);
+      });
+    });
+  }
+
+  // Inline delete
+  window.confirmDelete = function(url) {
+    if (confirm("Are you sure you want to delete this image?")) {
+      fetch(url, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('meta[name=\"csrf-token\"]').content
+        }
+      }).then(() => location.reload());
+    }
+  };
+
+  // Inline cover toggle
+  window.setCover = function(url) {
+    fetch(url, {
+      method: "PATCH",
+      headers: {
+        "X-CSRF-Token": document.querySelector('meta[name=\"csrf-token\"]').content
+      }
+    }).then(() => location.reload());
+  };
+});
+</script>
