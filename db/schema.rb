@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_10_172626) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_11_084108) do
   create_schema "auth"
   create_schema "extensions"
   create_schema "graphql"
@@ -112,6 +112,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_10_172626) do
     t.boolean "cover"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "position"
     t.index ["car_id"], name: "index_car_images_on_car_id"
   end
 

@@ -16,16 +16,14 @@ class CarsController < ApplicationController
     end
 
     if params[:price_range].present?
-      case params[:price_range]
-      when "low"
-        @cars = @cars.where("price < ?", 5000)
-      when "mid"
-        @cars = @cars.where("price >= ? AND price <= ?", 5000, 10000)
-      when "high"
-        @cars = @cars.where("price > ?", 10000)
-      when "sold"
-        @cars = @cars.where(status: "sold")
-      end
+      @cars =
+        case params[:price_range]
+        when "low"  then @cars.where("price < ?", 5000)
+        when "mid"  then @cars.where("price BETWEEN ? AND ?", 5000, 10000)
+        when "high" then @cars.where("price > ?", 10000)
+        when "sold" then @cars.where(status: "sold")
+        else @cars
+        end
     end
 
     @cars = @cars.order("RANDOM()")
@@ -34,10 +32,7 @@ class CarsController < ApplicationController
 
   def search
     @cars = Car.where(status: "published")
-
-    if params[:destination].present?
-      @cars = @cars.by_destination(params[:destination])
-    end
+    @cars = @cars.by_destination(params[:destination]) if params[:destination].present?
 
     if params[:start_time].present? && params[:end_time].present?
       @cars = @cars.available_between(params[:start_time], params[:end_time])
@@ -51,8 +46,7 @@ class CarsController < ApplicationController
 
   def show
     if @car.status == "draft" && @car.owner != current_user
-      redirect_to cars_path, alert: "This car is not available for public viewing."
-      return
+      redirect_to cars_path, alert: "This car is not available for public viewing." and return
     end
 
     if params[:start_time].present? && params[:end_time].present?
@@ -72,17 +66,7 @@ class CarsController < ApplicationController
     @car = current_user.cars.build(car_params.except(:images))
     @car.status = params[:draft] ? "draft" : "published"
 
-    if params[:car][:images].present?
-      uploader = SupabaseStorageService.new
-      params[:car][:images].each_with_index do |image, idx|
-        next unless image.respond_to?(:original_filename) # ✅ guard
-
-        Rails.logger.info("📦 Received image: #{image.original_filename}")
-        public_url = uploader.upload(image)
-        Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
-        @car.car_images.build(image_url: public_url, cover: idx.zero?) if public_url.present?
-      end
-    end
+    attach_images(@car, params[:car][:images]) if params[:car][:images].present?
 
     if @car.save
       message = @car.status == "draft" ? "Car saved as draft." : "Car published successfully."
@@ -96,23 +80,7 @@ class CarsController < ApplicationController
   def update
     @car.status = params[:draft] ? "draft" : "published"
 
-    if params[:car][:images].present?
-      uploader = SupabaseStorageService.new
-      params[:car][:images].each do |image|
-        next unless image.respond_to?(:original_filename) # ✅ guard
-
-        Rails.logger.info("📦 Updating with new image: #{image.original_filename}")
-        public_url = uploader.upload(image)
-        Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
-        @car.car_images.build(image_url: public_url, cover: false) if public_url.present?
-      end
-    end
-
-    if params[:cover_image_id].present?
-      @car.car_images.update_all(cover: false)
-      selected = @car.car_images.find_by(id: params[:cover_image_id])
-      selected&.update(cover: true)
-    end
+    attach_images(@car, params[:car][:images]) if params[:car][:images].present?
 
     if @car.update(car_params.except(:images))
       redirect_to @car, notice: "Car updated successfully."
@@ -134,9 +102,7 @@ class CarsController < ApplicationController
   end
 
   def authorize_car_owner!
-    unless @car.owner == current_user
-      redirect_to cars_path, alert: "Not authorized to modify this car."
-    end
+    redirect_to cars_path, alert: "Not authorized to modify this car." unless @car.owner == current_user
   end
 
   def car_params
@@ -157,7 +123,19 @@ class CarsController < ApplicationController
       :insurance_status,
       :seats,
       :status,
-      images: [] # ✅ multiple Supabase image uploads
+      images: []
     )
+  end
+
+  def attach_images(car, images)
+    uploader = SupabaseStorageService.new
+    images.each_with_index do |image, idx|
+      next unless image.respond_to?(:original_filename)
+
+      Rails.logger.info("📦 Processing image: #{image.original_filename}")
+      public_url = uploader.upload(image)
+      Rails.logger.info("🌐 Supabase returned URL: #{public_url}")
+      car.car_images.build(image_url: public_url, cover: idx.zero? && car.car_images.empty?) if public_url.present?
+    end
   end
 end

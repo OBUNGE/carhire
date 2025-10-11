@@ -35,14 +35,9 @@ Rails.application.routes.draw do
   # =========================
   # Payment callbacks (Daraja)
   # =========================
-  # STK Push (deposit + final handled via AccountReference)
   post "/payment/stk_callback",     to: "mpesa_callbacks#payment_callback"
-
-  # B2C payout callbacks
   post "/payment/result_callback",  to: "mpesa_callbacks#result_callback"
   post "/payment/timeout_callback", to: "mpesa_callbacks#timeout_callback"
-
-  # Refund callbacks (if you’re supporting refunds)
   post "/payment/refund_result_callback",  to: "mpesa_callbacks#refund_result_callback"
   post "/payment/refund_timeout_callback", to: "mpesa_callbacks#refund_timeout_callback"
 
@@ -53,10 +48,13 @@ Rails.application.routes.draw do
     resources :reviews, only: [:create]
     resources :bookings, only: [:new, :create]
 
-    # Nested car_images for deletion and cover switching
+    # Nested car_images for deletion, cover switching, and reordering
     resources :car_images, only: [:destroy] do
       member do
         patch :set_cover
+      end
+      collection do
+        patch :reorder   # <-- this is the missing route
       end
     end
 

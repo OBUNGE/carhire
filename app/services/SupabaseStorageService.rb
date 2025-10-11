@@ -8,22 +8,22 @@ class SupabaseStorageService
   def initialize
     @supabase_url = ENV['SUPABASE_URL']
     @supabase_key = ENV['SUPABASE_KEY']
-    @bucket = ENV['SUPABASE_BUCKET'] || 'carhirehub' # ✅ your actual bucket name
+    @bucket = ENV['SUPABASE_BUCKET'] || 'carhirehub'
   end
 
   def upload(file)
     return nil unless file.present? && file.respond_to?(:original_filename)
 
-    # ✅ Sanitize filename: replace spaces and unsafe chars
     safe_filename = file.original_filename.gsub(/\s+/, "_").gsub(/[^0-9A-Za-z.\-]/, "_")
     file_name = "#{SecureRandom.uuid}_#{safe_filename}"
 
-    uri = URI("#{@supabase_url}/storage/v1/object/#{@bucket}/#{file_name}")
+    uri = URI("#{@supabase_url}/storage/v1/object/#{@bucket}/#{file_name}?upsert=true")
 
     request = Net::HTTP::Post.new(uri)
     request['Authorization'] = "Bearer #{@supabase_key}"
     request['apikey'] = @supabase_key
     request['Content-Type'] = file.content_type
+    request['Content-Length'] = file.size.to_s
     request.body = file.tempfile.read
 
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
@@ -39,5 +39,25 @@ class SupabaseStorageService
   rescue => e
     Rails.logger.error("🔥 Supabase upload exception: #{e.message}")
     nil
+  end
+
+  def delete(file_url)
+    return false unless file_url.present?
+
+    path = file_url.split("/#{@bucket}/").last
+    uri = URI("#{@supabase_url}/storage/v1/object/#{@bucket}/#{path}")
+
+    request = Net::HTTP::Delete.new(uri)
+    request['Authorization'] = "Bearer #{@supabase_key}"
+    request['apikey'] = @supabase_key
+
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+
+    response.is_a?(Net::HTTPSuccess)
+  rescue => e
+    Rails.logger.error("🔥 Supabase delete exception: #{e.message}")
+    false
   end
 end
