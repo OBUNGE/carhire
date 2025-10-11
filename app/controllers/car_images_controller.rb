@@ -10,7 +10,6 @@ class CarImagesController < ApplicationController
     file_url  = @car_image.image_url
 
     if @car_image.destroy
-      # Clean up file from Supabase storage
       SupabaseStorageService.new.delete(file_url)
 
       # If the deleted image was the cover, set a new one
@@ -18,9 +17,15 @@ class CarImagesController < ApplicationController
         @car.car_images.first.update(cover: true)
       end
 
-      redirect_to edit_car_path(@car), notice: "Image removed successfully."
+      respond_to do |format|
+        format.html { redirect_to edit_car_path(@car), notice: "Image removed successfully." }
+        format.json { head :ok }
+      end
     else
-      redirect_to edit_car_path(@car), alert: "Failed to remove image."
+      respond_to do |format|
+        format.html { redirect_to edit_car_path(@car), alert: "Failed to remove image." }
+        format.json { render json: { error: "Failed to remove image" }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -29,17 +34,22 @@ class CarImagesController < ApplicationController
     @car.car_images.update_all(cover: false)
     @car_image.update(cover: true)
 
-    redirect_to edit_car_path(@car), notice: "Cover image updated."
+    respond_to do |format|
+      format.html { redirect_to edit_car_path(@car), notice: "Cover image updated." }
+      format.json { head :ok }
+    end
   end
 
   # PATCH /cars/:car_id/car_images/reorder
   def reorder
-    # params[:car_image_ids] is an array of IDs in the new order
     params[:car_image_ids].each_with_index do |id, index|
       @car.car_images.find(id).update(position: index + 1)
     end
 
-    head :ok
+    respond_to do |format|
+      format.html { head :ok }
+      format.json { head :ok }
+    end
   end
 
   private
