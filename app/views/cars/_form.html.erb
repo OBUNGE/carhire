@@ -105,13 +105,13 @@
               <% else %>
                 <a href="#"
                    class="cover-link"
-                   onclick="setCover('<%= set_cover_car_car_image_path(car, img) %>', this)">
+                   onclick="setCover('<%= set_cover_car_car_image_path(car, img) %>', this, event)">
                    Make Cover
                 </a>
               <% end %>
               <a href="#"
                  class="delete-link"
-                 onclick="confirmDelete('<%= car_car_image_path(car, img) %>', this)">
+                 onclick="confirmDelete('<%= car_car_image_path(car, img) %>', this, event)">
                  🗑 Delete
               </a>
             </div>
@@ -198,41 +198,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   <% end %>
 
-  // Image preview for uploads
-  const fileInput = document.querySelector('input[type="file"][multiple]');
-  const previewArea = document.getElementById("preview-area");
-
-  if (fileInput && previewArea) {
-    fileInput.addEventListener("change", () => {
-      previewArea.innerHTML = ""; // Clear previous previews
-
-      Array.from(fileInput.files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          const imgWrapper = document.createElement("div");
-          imgWrapper.style.position = "relative";
-          imgWrapper.style.borderRadius = "6px";
-          imgWrapper.style.overflow = "hidden";
-          imgWrapper.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
-          imgWrapper.style.marginBottom = "8px";
-
-          const img = document.createElement("img");
-          img.src = e.target.result;
-          img.style.width = "100%";
-          img.style.height = "auto";
-          img.style.display = "block";
-          img.style.objectFit = "cover";
-
-          imgWrapper.appendChild(img);
-          previewArea.appendChild(imgWrapper);
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-  }
-
   // Inline delete
-  window.confirmDelete = function(url, el) {
+  window.confirmDelete = function(url, el, event) {
+    event.preventDefault();
     if (confirm("Are you sure you want to delete this image?")) {
       fetch(url, {
         method: "DELETE",
@@ -249,8 +217,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Inline cover toggle
-  window.setCover = function(url, el) {
+   // Inline cover toggle
+  window.setCover = function(url, el, event) {
+    event.preventDefault();
     fetch(url, {
       method: "PATCH",
       headers: {
@@ -267,7 +236,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Add cover label to this image
         const actions = el.closest(".image-actions");
-        actions.querySelector(".cover-link").style.display = "none";
+        const link = actions.querySelector(".cover-link");
+        if (link) link.style.display = "none";
+
         const span = document.createElement("span");
         span.className = "cover-label";
         span.textContent = "Cover ✓";
