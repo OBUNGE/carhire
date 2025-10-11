@@ -15,3 +15,6 @@ application.register("image-preview", ImagePreviewController)
 
 import TimerController from "./timer_controller"
 application.register("timer", TimerController)
+
+import CarFormController from "./car_form_controller"
+application.register("car-form", CarFormController)

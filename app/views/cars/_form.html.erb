@@ -94,7 +94,11 @@
     <!-- Existing Images -->
     <% if car.persisted? && car.car_images.any? %>
       <label class="form-group">Current Images</label>
-      <div id="sortable-images" class="image-preview">
+      <div id="sortable-images"
+           class="image-preview"
+           data-controller="car-form"
+           data-car-form-reorder-url-value="<%= reorder_car_car_images_path(car) %>">
+
         <% car.car_images.each do |img| %>
           <div class="sortable-item" data-id="<%= img.id %>">
             <div class="drag-handle">☰</div>
@@ -105,13 +109,15 @@
               <% else %>
                 <a href="#"
                    class="cover-link"
-                   onclick="setCover('<%= set_cover_car_car_image_path(car, img) %>', this, event)">
+                   data-action="car-form#setCover"
+                   data-url="<%= set_cover_car_car_image_path(car, img) %>">
                    Make Cover
                 </a>
               <% end %>
               <a href="#"
                  class="delete-link"
-                 onclick="confirmDelete('<%= car_car_image_path(car, img) %>', this, event)">
+                 data-action="car-form#confirmDelete"
+                 data-url="<%= car_car_image_path(car, img) %>">
                  🗑 Delete
               </a>
             </div>
@@ -157,117 +163,3 @@
     </div>
   <% end %>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script>
-document.addEventListener("turbo:load", () => {
-  // Flash fade
-  ["flash-notice", "flash-alert"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      setTimeout(() => {
-        el.style.transition = "opacity 0.5s ease-out";
-        el.style.opacity = "0";
-        setTimeout(() => el.remove(), 500);
-      }, 4000);
-    }
-  });
-
-  // SortableJS (only if car is persisted and container exists)
-  const sortableEl = document.getElementById("sortable-images");
-  <% if car.persisted? %>
-  if (sortableEl) {
-    new Sortable(sortableEl, {
-      animation: 150,
-      handle: ".drag-handle",
-      onEnd: function () {
-        const ids = Array.from(sortableEl.querySelectorAll(".sortable-item"))
-                         .map(item => item.dataset.id);
-
-        fetch("<%= reorder_car_car_images_path(car) %>", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({ car_image_ids: ids })
-        }).then(() => showToast("Image order saved ✅", "#2563eb"));
-      }
-    });
-  }
-  <% end %>
-
-  // Inline delete
-  window.confirmDelete = function(url, el, event) {
-    event.preventDefault();
-    if (confirm("Are you sure you want to delete this image?")) {
-      fetch(url, {
-        method: "DELETE",
-        headers: {
-          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
-          "Accept": "application/json"
-        }
-      }).then(response => {
-        if (response.ok) {
-          el.closest(".sortable-item").remove();
-          showToast("Image deleted ✅", "#dc2626");
-        }
-      });
-    }
-  };
-
-  // Inline cover toggle
-  window.setCover = function(url, el, event) {
-    event.preventDefault();
-    fetch(url, {
-      method: "PATCH",
-      headers: {
-        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
-        "Accept": "application/json"
-      }
-    }).then(response => {
-      if (response.ok) {
-                // Reset all cover labels
-        document.querySelectorAll(".cover-label").forEach(lbl => lbl.remove());
-        document.querySelectorAll(".cover-link").forEach(link => {
-          link.style.display = "inline";
-        });
-
-        // Add cover label to this image
-        const actions = el.closest(".image-actions");
-        const link = actions.querySelector(".cover-link");
-        if (link) link.style.display = "none";
-
-        const span = document.createElement("span");
-        span.className = "cover-label";
-        span.textContent = "Cover ✓";
-        actions.prepend(span);
-
-        showToast("Cover updated ✅", "#2563eb");
-      }
-    });
-  };
-
-  // Toast helper
-  function showToast(message, bgColor) {
-    const toast = document.createElement("div");
-    toast.textContent = message;
-    toast.style.position = "fixed";
-    toast.style.bottom = "20px";
-    toast.style.right = "20px";
-    toast.style.background = bgColor;
-    toast.style.color = "white";
-    toast.style.padding = "12px 20px";
-    toast.style.borderRadius = "8px";
-    toast.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
-    toast.style.zIndex = "9999";
-    toast.style.fontWeight = "500";
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.style.opacity = "0";
-      setTimeout(() => toast.remove(), 500);
-    }, 3000);
-  }
-});
-</script>
