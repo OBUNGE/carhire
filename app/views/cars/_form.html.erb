@@ -1,23 +1,23 @@
 <% car ||= @car %>
 
 <% if flash[:notice] %>
-  <div id="flash-notice" class="bg-green-50 border border-green-300 text-green-800 p-3 rounded mb-4">
+  <div id="flash-notice" class="flash-message flash-notice">
     <strong>Success:</strong> <%= flash[:notice] %>
   </div>
 <% elsif flash[:alert] %>
-  <div id="flash-alert" class="bg-red-50 border border-red-300 text-red-800 p-3 rounded mb-4">
+  <div id="flash-alert" class="flash-message flash-alert">
     <strong>Error:</strong> <%= flash[:alert] %>
   </div>
 <% end %>
 
 <div class="car-form-wrapper">
-  <h1 class="text-2xl font-bold mb-4"><%= car.new_record? ? "Add Car" : "Edit Car" %></h1>
+  <h1><%= car.new_record? ? "Add Car" : "Edit Car" %></h1>
 
   <%= form_with(model: car, local: true, html: { multipart: true }) do |form| %>
     <% if car.errors.any? %>
-      <div class="bg-red-50 border border-red-300 text-red-800 p-3 rounded mb-4">
+      <div class="flash-message flash-alert">
         <strong><%= pluralize(car.errors.count, "error") %> prevented this car from being saved:</strong>
-        <ul class="list-disc pl-5">
+        <ul>
           <% car.errors.each do |error| %>
             <li><%= error.full_message %></li>
           <% end %>
@@ -26,62 +26,86 @@
     <% end %>
 
     <!-- Basic Info -->
-    <%= form.label :make %>
-    <%= form.text_field :make, class: "input" %>
+    <div class="form-group">
+      <%= form.label :make %>
+      <%= form.text_field :make %>
+    </div>
 
-    <%= form.label :model %>
-    <%= form.text_field :model, class: "input" %>
+    <div class="form-group">
+      <%= form.label :model %>
+      <%= form.text_field :model %>
+    </div>
 
-    <%= form.label :year %>
-    <%= form.number_field :year, class: "input" %>
+    <div class="form-group">
+      <%= form.label :year %>
+      <%= form.number_field :year %>
+    </div>
 
-    <%= form.label :price, "Price (KES)" %>
-    <%= form.number_field :price, step: 50, class: "input" %>
+    <div class="form-group">
+      <%= form.label :price, "Price (KES)" %>
+      <%= form.number_field :price, step: 50 %>
+    </div>
 
     <!-- Specs -->
-    <%= form.label :transmission_type %>
-    <%= form.select :transmission_type, ["Automatic", "Manual"], prompt: "Select transmission type", class: "input" %>
+    <div class="form-group">
+      <%= form.label :transmission_type %>
+      <%= form.select :transmission_type, ["Automatic", "Manual"], prompt: "Select transmission type" %>
+    </div>
 
-    <%= form.label :fuel_type %>
-    <%= form.select :fuel_type, ["Petrol", "Diesel", "Electric", "Hybrid"], prompt: "Select fuel type", class: "input" %>
+    <div class="form-group">
+      <%= form.label :fuel_type %>
+      <%= form.select :fuel_type, ["Petrol", "Diesel", "Electric", "Hybrid"], prompt: "Select fuel type" %>
+    </div>
 
-    <%= form.label :insurance_status %>
-    <%= form.select :insurance_status, ["Fully insured", "Third-party", "Not insured"], prompt: "Select insurance status", class: "input" %>
+    <div class="form-group">
+      <%= form.label :insurance_status %>
+      <%= form.select :insurance_status, ["Fully insured", "Third-party", "Not insured"], prompt: "Select insurance status" %>
+    </div>
 
-    <%= form.label :seats, "Number of Seats" %>
-    <%= form.number_field :seats, min: 1, max: 100, step: 1, placeholder: "e.g. 5", class: "input" %>
+    <div class="form-group">
+      <%= form.label :seats, "Number of Seats" %>
+      <%= form.number_field :seats, min: 1, max: 100, step: 1, placeholder: "e.g. 5" %>
+    </div>
 
     <!-- Listing Type -->
-    <%= form.label :listing_type %>
-    <% Car::LISTING_TYPES.each do |type| %>
-      <label class="inline-flex items-center mr-4">
-        <%= form.radio_button :listing_type, type %>
-        <span class="ml-2"><%= type.titleize %></span>
-      </label>
-    <% end %>
+    <div class="form-group">
+      <%= form.label :listing_type %>
+      <div class="radio-group">
+        <% Car::LISTING_TYPES.each do |type| %>
+          <label>
+            <%= form.radio_button :listing_type, type %>
+            <span><%= type.titleize %></span>
+          </label>
+        <% end %>
+      </div>
+    </div>
 
-    <%= form.label :deposit_amount, "Security Deposit (KES)" %>
-    <%= form.number_field :deposit_amount, step: 50, min: 0, class: "input" %>
+    <div class="form-group">
+      <%= form.label :deposit_amount, "Security Deposit (KES)" %>
+      <%= form.number_field :deposit_amount, step: 50, min: 0 %>
+    </div>
 
     <!-- Description -->
-    <%= form.label :description %>
-    <%= form.text_area :description, rows: 4, class: "input" %>
+    <div class="form-group">
+      <%= form.label :description %>
+      <%= form.text_area :description, rows: 4 %>
+    </div>
 
     <!-- Existing Images -->
     <% if car.persisted? && car.car_images.any? %>
-      <label class="block font-semibold mt-4 mb-2">Current Images</label>
-      <div id="sortable-images" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <label class="form-group">Current Images</label>
+      <div id="sortable-images" class="image-preview">
         <% car.car_images.each do |img| %>
-          <div class="sortable-item border rounded p-2 relative" data-id="<%= img.id %>">
-            <div class="drag-handle absolute top-2 left-2 cursor-grab text-xl">☰</div>
-            <%= image_tag img.image_url, class: "rounded w-full" %>
-            <div class="flex justify-between items-center mt-2">
+          <div class="sortable-item" data-id="<%= img.id %>">
+            <div class="drag-handle">☰</div>
+            <%= image_tag img.image_url %>
+            <div class="image-actions">
               <% if img.cover? %>
-                <span class="text-green-600 text-sm">Cover ✓</span>
+                <span class="cover-label">Cover ✓</span>
               <% else %>
-                <a href="#" onclick="setCover('<%= set_cover_car_car_image_path(car, img) %>')" class="text-blue-600 text-sm">Make Cover</a>
+                <a href="#" onclick="setCover('<%= set_cover_car_car_image_path(car, img) %>')">Make Cover</a>
               <% end %>
-              <a href="#" onclick="confirmDelete('<%= car_car_image_path(car, img) %>')" class="text-red-600 text-sm">🗑</a>
+              <a href="#" onclick="confirmDelete('<%= car_car_image_path(car, img) %>')">🗑</a>
             </div>
           </div>
         <% end %>
@@ -89,32 +113,43 @@
     <% end %>
 
     <!-- Upload New Images -->
-    <%= form.label :images, "Upload Car Images" %>
-    <%= form.file_field :images, multiple: true, accept: "image/*", class: "input" %>
-    <p class="text-sm text-gray-600">You can select multiple files. Accepted formats: JPG, PNG.</p>
-    <div id="preview-area" class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2"></div>
+    <div class="form-group">
+      <%= form.label :images, "Upload Car Images" %>
+      <%= form.file_field :images, multiple: true, accept: "image/*" %>
+      <p class="hint">You can select multiple files. Accepted formats: JPG, PNG.</p>
+      <div id="preview-area" class="image-preview"></div>
+    </div>
 
     <!-- Location -->
-    <%= form.label :pickup_address %>
-    <%= form.text_field :pickup_address, class: "input" %>
+    <div class="form-group">
+      <%= form.label :pickup_address %>
+      <%= form.text_field :pickup_address %>
+    </div>
 
-    <%= form.label :latitude %>
-    <%= form.text_field :latitude, class: "input" %>
+    <div class="form-group">
+      <%= form.label :latitude %>
+      <%= form.text_field :latitude %>
+    </div>
 
-    <%= form.label :longitude %>
-    <%= form.text_field :longitude, class: "input" %>
+    <div class="form-group">
+      <%= form.label :longitude %>
+      <%= form.text_field :longitude %>
+    </div>
 
     <!-- Category -->
-    <%= form.label :category %>
-    <%= form.select :category, ['SUV', 'Sedan', 'Hatchback', 'Truck', 'Van', 'Luxury', 'Convertible', 'Electric Car', 'Other'], { prompt: 'Select a category' }, class: "input" %>
+    <div class="form-group">
+      <%= form.label :category %>
+      <%= form.select :category, ['SUV', 'Sedan', 'Hatchback', 'Truck', 'Van', 'Luxury', 'Convertible', 'Electric Car', 'Other'], { prompt: 'Select a category' } %>
+    </div>
 
     <!-- Buttons -->
-    <div class="mt-4 flex gap-4">
-      <%= form.submit "Save as Draft", name: "draft", class: "bg-gray-300 px-4 py-2 rounded" %>
-      <%= form.submit "Publish", name: "publish", class: "bg-blue-600 text-white px-4 py-2 rounded" %>
+    <div class="button-group">
+      <%= form.submit "Save as Draft", name: "draft", class: "button-secondary" %>
+      <%= form.submit "Publish", name: "publish", class: "button-primary" %>
     </div>
   <% end %>
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
